@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqz.hzuoj.mapper.DictionaryMapper">
+
+    <resultMap type="com.hqz.hzuoj.entity.model.Dictionary" id="DictionaryMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="dicCode" column="dic_code" jdbcType="VARCHAR"/>
+        <result property="dicName" column="dic_name" jdbcType="VARCHAR"/>
+        <result property="remark" column="remark" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="DictionaryMap">
+        select
+          id, dic_code, dic_name, remark
+        from oj.dictionary
+        where id = #{id}
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="DictionaryMap">
+        select
+          id, dic_code, dic_name, remark
+        from oj.dictionary
+        limit #{offset}, #{limit}
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="queryAll" resultMap="DictionaryMap">
+        select
+          id, dic_code, dic_name, remark
+        from oj.dictionary
+        <where>
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="dicCode != null and dicCode != ''">
+                and dic_code = #{dicCode}
+            </if>
+            <if test="dicName != null and dicName != ''">
+                and dic_name = #{dicName}
+            </if>
+            <if test="remark != null and remark != ''">
+                and remark = #{remark}
+            </if>
+        </where>
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+        insert into oj.dictionary(dic_code, dic_name, remark)
+        values (#{dicCode}, #{dicName}, #{remark})
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update oj.dictionary
+        <set>
+            <if test="dicCode != null and dicCode != ''">
+                dic_code = #{dicCode},
+            </if>
+            <if test="dicName != null and dicName != ''">
+                dic_name = #{dicName},
+            </if>
+            <if test="remark != null and remark != ''">
+                remark = #{remark},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from oj.dictionary where id = #{id}
+    </delete>
+
+</mapper>

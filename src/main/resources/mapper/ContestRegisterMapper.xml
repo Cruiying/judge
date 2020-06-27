@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqz.hzuoj.mapper.ContestRegisterMapper">
+
+    <resultMap type="com.hqz.hzuoj.entity.model.ContestRegister" id="ContestRegisterMap">
+        <result property="contestRegisterId" column="contest_register_id" jdbcType="INTEGER"/>
+        <result property="contestId" column="contest_id" jdbcType="INTEGER"/>
+        <result property="userId" column="user_id" jdbcType="INTEGER"/>
+        <result property="remarkName" column="remark_name" jdbcType="VARCHAR"/>
+        <result property="registerTime" column="register_time" jdbcType="TIMESTAMP"/>
+        <result property="beforeRating" column="before_rating" jdbcType="INTEGER"/>
+        <result property="afterRating" column="after_rating" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="ContestRegisterMap">
+        select
+          contest_register_id, contest_id, user_id, remark_name, register_time, before_rating, after_rating
+        from oj.contest_register
+        where contest_register_id = #{contestRegisterId}
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="ContestRegisterMap">
+        select
+          contest_register_id, contest_id, user_id, remark_name, register_time, before_rating, after_rating
+        from oj.contest_register
+        limit #{offset}, #{limit}
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="queryAll" resultMap="ContestRegisterMap">
+        select
+          contest_register_id, contest_id, user_id, remark_name, register_time, before_rating, after_rating
+        from oj.contest_register
+        <where>
+            <if test="contestRegisterId != null">
+                and contest_register_id = #{contestRegisterId}
+            </if>
+            <if test="contestId != null">
+                and contest_id = #{contestId}
+            </if>
+            <if test="userId != null">
+                and user_id = #{userId}
+            </if>
+            <if test="remarkName != null and remarkName != ''">
+                and remark_name = #{remarkName}
+            </if>
+            <if test="registerTime != null">
+                and register_time = #{registerTime}
+            </if>
+            <if test="beforeRating != null">
+                and before_rating = #{beforeRating}
+            </if>
+            <if test="afterRating != null">
+                and after_rating = #{afterRating}
+            </if>
+        </where>
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="contestRegisterId" useGeneratedKeys="true">
+        insert into oj.contest_register(contest_id, user_id, remark_name, register_time, before_rating, after_rating)
+        values (#{contestId}, #{userId}, #{remarkName}, #{registerTime}, #{beforeRating}, #{afterRating})
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update oj.contest_register
+        <set>
+            <if test="contestId != null">
+                contest_id = #{contestId},
+            </if>
+            <if test="userId != null">
+                user_id = #{userId},
+            </if>
+            <if test="remarkName != null and remarkName != ''">
+                remark_name = #{remarkName},
+            </if>
+            <if test="registerTime != null">
+                register_time = #{registerTime},
+            </if>
+            <if test="beforeRating != null">
+                before_rating = #{beforeRating},
+            </if>
+            <if test="afterRating != null">
+                after_rating = #{afterRating},
+            </if>
+        </set>
+        where contest_register_id = #{contestRegisterId}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from oj.contest_register where contest_register_id = #{contestRegisterId}
+    </delete>
+
+</mapper>

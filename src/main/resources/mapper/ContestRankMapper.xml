@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqz.hzuoj.mapper.ContestRankMapper">
+
+    <resultMap type="com.hqz.hzuoj.entity.model.ContestRank" id="ContestRankMap">
+        <result property="contestRankId" column="contest_rank_id" jdbcType="INTEGER"/>
+        <result property="contestId" column="contest_id" jdbcType="INTEGER"/>
+        <result property="rank" column="rank" jdbcType="INTEGER"/>
+        <result property="contestRegisterId" column="contest_register_id" jdbcType="INTEGER"/>
+        <result property="totalAccepted" column="total_accepted" jdbcType="INTEGER"/>
+        <result property="totalScore" column="total_score" jdbcType="INTEGER"/>
+        <result property="totalPunish" column="total_punish" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="ContestRankMap">
+        select
+          contest_rank_id, contest_id, rank, contest_register_id, total_accepted, total_score, total_punish
+        from oj.contest_rank
+        where contest_rank_id = #{contestRankId}
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="ContestRankMap">
+        select
+          contest_rank_id, contest_id, rank, contest_register_id, total_accepted, total_score, total_punish
+        from oj.contest_rank
+        limit #{offset}, #{limit}
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="queryAll" resultMap="ContestRankMap">
+        select
+          contest_rank_id, contest_id, rank, contest_register_id, total_accepted, total_score, total_punish
+        from oj.contest_rank
+        <where>
+            <if test="contestRankId != null">
+                and contest_rank_id = #{contestRankId}
+            </if>
+            <if test="contestId != null">
+                and contest_id = #{contestId}
+            </if>
+            <if test="rank != null">
+                and rank = #{rank}
+            </if>
+            <if test="contestRegisterId != null">
+                and contest_register_id = #{contestRegisterId}
+            </if>
+            <if test="totalAccepted != null">
+                and total_accepted = #{totalAccepted}
+            </if>
+            <if test="totalScore != null">
+                and total_score = #{totalScore}
+            </if>
+            <if test="totalPunish != null">
+                and total_punish = #{totalPunish}
+            </if>
+        </where>
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="contestRankId" useGeneratedKeys="true">
+        insert into oj.contest_rank(contest_id, rank, contest_register_id, total_accepted, total_score, total_punish)
+        values (#{contestId}, #{rank}, #{contestRegisterId}, #{totalAccepted}, #{totalScore}, #{totalPunish})
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update oj.contest_rank
+        <set>
+            <if test="contestId != null">
+                contest_id = #{contestId},
+            </if>
+            <if test="rank != null">
+                rank = #{rank},
+            </if>
+            <if test="contestRegisterId != null">
+                contest_register_id = #{contestRegisterId},
+            </if>
+            <if test="totalAccepted != null">
+                total_accepted = #{totalAccepted},
+            </if>
+            <if test="totalScore != null">
+                total_score = #{totalScore},
+            </if>
+            <if test="totalPunish != null">
+                total_punish = #{totalPunish},
+            </if>
+        </set>
+        where contest_rank_id = #{contestRankId}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from oj.contest_rank where contest_rank_id = #{contestRankId}
+    </delete>
+
+</mapper>

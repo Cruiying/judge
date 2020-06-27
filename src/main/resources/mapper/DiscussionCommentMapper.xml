@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqz.hzuoj.mapper.DiscussionCommentMapper">
+
+    <resultMap type="com.hqz.hzuoj.entity.model.DiscussionComment" id="DiscussionCommentMap">
+        <result property="discussionCommentId" column="discussion_comment_id" jdbcType="INTEGER"/>
+        <result property="discussionId" column="discussion_id" jdbcType="INTEGER"/>
+        <result property="content" column="content" jdbcType="VARCHAR"/>
+        <result property="userId" column="user_id" jdbcType="INTEGER"/>
+        <result property="commentTime" column="comment_time" jdbcType="TIMESTAMP"/>
+        <result property="parentCommentId" column="parent_comment_id" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="DiscussionCommentMap">
+        select
+          discussion_comment_id, discussion_id, content, user_id, comment_time, parent_comment_id
+        from oj.discussion_comment
+        where discussion_comment_id = #{discussionCommentId}
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="DiscussionCommentMap">
+        select
+          discussion_comment_id, discussion_id, content, user_id, comment_time, parent_comment_id
+        from oj.discussion_comment
+        limit #{offset}, #{limit}
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="queryAll" resultMap="DiscussionCommentMap">
+        select
+          discussion_comment_id, discussion_id, content, user_id, comment_time, parent_comment_id
+        from oj.discussion_comment
+        <where>
+            <if test="discussionCommentId != null">
+                and discussion_comment_id = #{discussionCommentId}
+            </if>
+            <if test="discussionId != null">
+                and discussion_id = #{discussionId}
+            </if>
+            <if test="content != null and content != ''">
+                and content = #{content}
+            </if>
+            <if test="userId != null">
+                and user_id = #{userId}
+            </if>
+            <if test="commentTime != null">
+                and comment_time = #{commentTime}
+            </if>
+            <if test="parentCommentId != null">
+                and parent_comment_id = #{parentCommentId}
+            </if>
+        </where>
+    </select>
+    <select id="queryDiscussionComment" resultType="com.hqz.hzuoj.entity.model.DiscussionComment">
+        select * from discussion_comment where discussion_id = #{discussionId}
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="discussionCommentId" useGeneratedKeys="true">
+        insert into oj.discussion_comment(discussion_id, content, user_id, comment_time, parent_comment_id)
+        values (#{discussionId}, #{content}, #{userId}, #{commentTime}, #{parentCommentId})
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update oj.discussion_comment
+        <set>
+            <if test="discussionId != null">
+                discussion_id = #{discussionId},
+            </if>
+            <if test="content != null and content != ''">
+                content = #{content},
+            </if>
+            <if test="userId != null">
+                user_id = #{userId},
+            </if>
+            <if test="commentTime != null">
+                comment_time = #{commentTime},
+            </if>
+            <if test="parentCommentId != null">
+                parent_comment_id = #{parentCommentId},
+            </if>
+        </set>
+        where discussion_comment_id = #{discussionCommentId}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from oj.discussion_comment where discussion_comment_id = #{discussionCommentId}
+    </delete>
+
+</mapper>

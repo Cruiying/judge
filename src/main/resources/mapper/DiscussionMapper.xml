@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqz.hzuoj.mapper.DiscussionMapper">
+
+    <resultMap type="com.hqz.hzuoj.entity.model.Discussion" id="DiscussionMap">
+        <result property="discussionId" column="discussion_id" jdbcType="INTEGER"/>
+        <result property="content" column="content" jdbcType="VARCHAR"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="userId" column="user_id" jdbcType="INTEGER"/>
+        <result property="modifyTime" column="modify_time" jdbcType="TIMESTAMP"/>
+        <result property="title" column="title" jdbcType="VARCHAR"/>
+        <result property="top" column="top" jdbcType="OTHER"/>
+        <result property="commentCount" column="comment_count" jdbcType="INTEGER"/>
+        <result property="commendCount" column="commend_count" jdbcType="INTEGER"/>
+        <result property="browseCount" column="browse_count" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="DiscussionMap">
+        select
+          discussion_id, content, create_time, user_id, modify_time, title, top, comment_count, commend_count, browse_count
+        from oj.discussion
+        where discussion_id = #{discussionId}
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="DiscussionMap">
+        select
+          discussion_id, content, create_time, user_id, modify_time, title, top, comment_count, commend_count, browse_count
+        from oj.discussion
+        limit #{offset}, #{limit}
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="queryAll" resultMap="DiscussionMap">
+        select
+          discussion_id, content, create_time, user_id, modify_time, title, top, comment_count, commend_count, browse_count
+        from oj.discussion
+        <where>
+            <if test="discussionId != null">
+                and discussion_id = #{discussionId}
+            </if>
+            <if test="content != null and content != ''">
+                and content = #{content}
+            </if>
+            <if test="createTime != null">
+                and create_time = #{createTime}
+            </if>
+            <if test="userId != null">
+                and user_id = #{userId}
+            </if>
+            <if test="modifyTime != null">
+                and modify_time = #{modifyTime}
+            </if>
+            <if test="title != null and title != ''">
+                and title = #{title}
+            </if>
+            <if test="top != null">
+                and top = #{top}
+            </if>
+            <if test="commentCount != null">
+                and comment_count = #{commentCount}
+            </if>
+            <if test="commendCount != null">
+                and commend_count = #{commendCount}
+            </if>
+            <if test="browseCount != null">
+                and browse_count = #{browseCount}
+            </if>
+        </where>
+    </select>
+
+<!--    通过ID查询对象 -->
+    <select id="findById" resultType="com.hqz.hzuoj.entity.DO.DiscussionUserDO">
+        select * from discussion  d
+        join user u on d.user_id = u.user_id
+        where d.discussion_id = #{discussionId}
+    </select>
+
+    <select id="findDiscussions" resultType="com.hqz.hzuoj.entity.DO.DiscussionUserDO">
+        select * from discussion  d
+        join user u on d.user_id = u.user_id
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="discussionId" useGeneratedKeys="true">
+        insert into discussion(content, create_time, user_id, modify_time, title, top, comment_count, commend_count, browse_count)
+        values (#{content}, #{createTime}, #{userId}, #{modifyTime}, #{title}, #{top}, #{commentCount}, #{commendCount}, #{browseCount})
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update oj.discussion
+        <set>
+            <if test="content != null and content != ''">
+                content = #{content},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="userId != null">
+                user_id = #{userId},
+            </if>
+            <if test="modifyTime != null">
+                modify_time = #{modifyTime},
+            </if>
+            <if test="title != null and title != ''">
+                title = #{title},
+            </if>
+            <if test="top != null">
+                top = #{top},
+            </if>
+            <if test="commentCount != null">
+                comment_count = #{commentCount},
+            </if>
+            <if test="commendCount != null">
+                commend_count = #{commendCount},
+            </if>
+            <if test="browseCount != null">
+                browse_count = #{browseCount},
+            </if>
+        </set>
+        where discussion_id = #{discussionId}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from oj.discussion where discussion_id = #{discussionId}
+    </delete>
+
+</mapper>

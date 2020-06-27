@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqz.hzuoj.mapper.AccessRecordMapper">
+
+    <resultMap type="com.hqz.hzuoj.entity.model.AccessRecord" id="AccessRecordMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="time" column="time" jdbcType="TIMESTAMP"/>
+        <result property="ip" column="ip" jdbcType="VARCHAR"/>
+        <result property="url" column="url" jdbcType="VARCHAR"/>
+        <result property="user" column="user" jdbcType="VARCHAR"/>
+        <result property="api" column="api" jdbcType="VARCHAR"/>
+        <result property="data" column="data" jdbcType="VARCHAR"/>
+        <result property="length" column="length" jdbcType="INTEGER"/>
+        <result property="type" column="type" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="AccessRecordMap">
+        select
+          id, time, ip, url, user, api, data, length, type
+        from oj.access_record
+        where id = #{id}
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="AccessRecordMap">
+        select
+          id, time, ip, url, user, api, data, length, type
+        from oj.access_record
+        limit #{offset}, #{limit}
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="queryAll" resultMap="AccessRecordMap">
+        select
+          id, time, ip, url, user, api, data, length, type
+        from oj.access_record
+        <where>
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="time != null">
+                and time = #{time}
+            </if>
+            <if test="ip != null and ip != ''">
+                and ip = #{ip}
+            </if>
+            <if test="url != null and url != ''">
+                and url = #{url}
+            </if>
+            <if test="user != null and user != ''">
+                and user = #{user}
+            </if>
+            <if test="api != null and api != ''">
+                and api = #{api}
+            </if>
+            <if test="data != null and data != ''">
+                and data = #{data}
+            </if>
+            <if test="length != null">
+                and length = #{length}
+            </if>
+            <if test="type != null and type != ''">
+                and type = #{type}
+            </if>
+        </where>
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+        insert into oj.access_record(time, ip, url, user, api, data, length, type)
+        values (#{time}, #{ip}, #{url}, #{user}, #{api}, #{data}, #{length}, #{type})
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update oj.access_record
+        <set>
+            <if test="time != null">
+                time = #{time},
+            </if>
+            <if test="ip != null and ip != ''">
+                ip = #{ip},
+            </if>
+            <if test="url != null and url != ''">
+                url = #{url},
+            </if>
+            <if test="user != null and user != ''">
+                user = #{user},
+            </if>
+            <if test="api != null and api != ''">
+                api = #{api},
+            </if>
+            <if test="data != null and data != ''">
+                data = #{data},
+            </if>
+            <if test="length != null">
+                length = #{length},
+            </if>
+            <if test="type != null and type != ''">
+                type = #{type},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from oj.access_record where id = #{id}
+    </delete>
+
+</mapper>
