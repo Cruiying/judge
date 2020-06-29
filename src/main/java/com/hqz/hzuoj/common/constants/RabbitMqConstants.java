@@ -9,5 +9,12 @@ package com.hqz.hzuoj.common.constants;
  * @description
  */
 public class RabbitMqConstants {
-    public static final String REFRESH_ES_INDEX_QUEUE ="hzuoj-queue";
+
+    public static final String SEND_JUDGE_SUBMIT_QUEUE ="judge_submit_queue";
+
+    public static final String RECEIVE_JUDGE_RESULT_QUEUE = "judge_result_queue";
+
+    public static final String SEND_JUDGE_TEST_SUBMIT_QUEUE = "judge_test_submit_queue";
+
+    public static final String RECEIVE_JUDGE_TEST_RESULT_QUEUE = "judge_test_result_queue";
 }
