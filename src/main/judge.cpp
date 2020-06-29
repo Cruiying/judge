@@ -1,4 +1,3 @@
-
 #include <iostream>
 #include <cstdint>
 #include <string.h>
@@ -17,42 +16,8 @@
 #include <tlhelp32.h>
 #include <atlbase.h>
 #include <ShellAPI.h>
+
 using namespace std;
-
-bool setupIoRedirection(STARTUPINFO&, std::string, std::string, HANDLE&, HANDLE&);
-
-const char* getstringToCharArray(string str);
-
-int systemKillProcess(const char* cmd);
-
-string dwordTostring(DWORD val);
-
-bool createProcess(const std::string, HANDLE&, LPVOID, STARTUPINFO&, PROCESS_INFORMATION&);
-
-DWORD runProcess(PROCESS_INFORMATION&, STARTUPINFO&, HANDLE& hInput, HANDLE& hOutput, int, int, int&, int&, int&);
-
-int getMaxMemoryUsage(PROCESS_INFORMATION&, STARTUPINFO&, HANDLE& hInput, HANDLE& hOutput, int, int&);
-
-int timeoutProcess(PROCESS_INFORMATION&, STARTUPINFO&, HANDLE& hInput, HANDLE& hOutput, int, int&);
-
-int getCurrentMemoryUsage(HANDLE&);
-
-long long getMillisecondsNow();
-
-bool killProcess(PROCESS_INFORMATION&, STARTUPINFO&, HANDLE& hInput, HANDLE& hOutput);
-
-DWORD getExitCode(HANDLE&);
-
-std::string getErrorMessage(const std::string&);
-
-std::wstring getWidestring(const std::string&);
-
-LPWSTR getWidestringPointer(const std::wstring&);
-
-LPCWSTR getConstWidestringPointer(const std::wstring&);
-
-
-
 
 class Result {
 private:
@@ -138,60 +103,144 @@ private:
 	PROCESS_INFORMATION process = { 0 };
 	STARTUPINFO        startup = { 0 };
 public:
-	HANDLE getHInput() {
+	HANDLE& getHInput() {
 		return this->hInput;
 	}
-	void setHInput(HANDLE hInput) {
+	void setHInput(HANDLE& hInput) {
 		this->hInput = hInput;
 	}
-	HANDLE getHOutput() {
+	HANDLE& getHOutput() {
 		return this->hOutput;
 	}
-	HANDLE setHOutput(HANDLE hOutput) {
-		return this->hOutput;
+	void setHOutput(HANDLE& hOutput) {
+		this->hOutput = hOutput;
 	}
-	HANDLE getHToken() {
+	HANDLE& getHToken() {
 		return this->hToken;
 	}
-	void setHToken(HANDLE hToken) {
+	void setHToken(HANDLE& hToken) {
 		this->hToken = hToken;
 	}
-	LPVOID getLpEnvironment() {
+	LPVOID& getLpEnvironment() {
 		return this->lpEnvironment;
 	}
-	void setLpEnvironment(LPVOID lpEnvironment) {
+	void setLpEnvironment(LPVOID& lpEnvironment) {
 		this->lpEnvironment = lpEnvironment;
 	}
-	PROCESS_INFORMATION getProcess() {
+	PROCESS_INFORMATION& getProcess() {
 		return this->process;
 	}
-	void setProcess(PROCESS_INFORMATION process) {
+	void setProcess(PROCESS_INFORMATION& process) {
 		this->process = process;
 	}
-	STARTUPINFO getStartup() {
+	STARTUPINFO& getStartup() {
 		return this->startup;
 	}
-	void setStartup(STARTUPINFO startup) {
+	void setStartup(STARTUPINFO& startup) {
 		this->startup = startup;
+	}
+	~SystemResource() {
+		cout << "释放资源" << endl;
+		CloseHandle(hInput);
+		CloseHandle(hOutput);
 	}
 };
 
+/** 获取运行资源 **/
+Response readResponse();
+
+/** 保存运行状态 **/
+void saveResult(Result& result);
+
+/** 释放资源 **/
+void freeSystemResource(SystemResource& systemResource);
+
+/** 重定向子进程的I/O. **/
+bool setupIoRedirection(SystemResource& systemResource, Result& result, Response& respone);
+
+/** 创建进程. **/
+bool createProcess(SystemResource& systemResource, Result& result, Response& respone);
+
+/** 运行进程. **/
+Result runProcess(SystemResource& systemResource, Result& result, Response& response);
+
+/** 获取运行时内存占用最大值 **/
+Result getMaxMemoryUsage(SystemResource& systemResource, Result& result, Response& response);
+
+/** 监听程序运行时间 **/
+Result timeoutProcess(SystemResource& systemResource, Result& result, Response& response);
+
+/** 获取进程内存占用情况. **/
+int getCurrentMemoryUsage(HANDLE& hProcess);
+
+/** 获取当前系统时间. **/
+long long getMillisecondsNow();
+
+/** 强制销毁进程. **/
+bool killProcess(SystemResource& systemResource, Result& result, Response& response);
+
+/** 执行杀死进程命令 **/
+int systemKillProcess(const char* cmd);
+
+/** 将string转为const char **/
+const char* getstringToCharArray(string str);
+
+/** DWORD转strning **/
+string dwordTostring(DWORD val);
+
+/** 获取应用程序退出状态. */
+DWORD getExitCode(HANDLE& hProcess);
+
+/** 获取std::wstring类型的字符串. **/
+std::wstring getWidestring(const std::string& str);
+
+/** 获取std::wstring对应LPWSTR类型的指针. **/
+LPWSTR getWidestringPointer(const std::wstring& str);
+
+/** 获取std::wstring对应LPCWSTR类型的指针. **/
+LPCWSTR getConstWidestringPointer(const std::wstring& str);
 
 int main() {
-	Result result = new Result();
-    Response response = new Response();
-    SystemResource systemResource = new SystemResource();
-    try {
-
-    } catch (const std::exception&) {
-
-    }
-    cout << "退出状态：" << result.getExitCode() << endl;
-    cout << "运行时间: " << result.getTimeUsage() << endl;
-    cout << "运行内存: " << result.getMemoryUsage() << endl;
-
+	Result result = Result();
+	SystemResource systemResource = SystemResource();
+	try {
+		Response response = readResponse();
+		/** 判断重点向IO 与 创建进程是否成功 **/
+		if (setupIoRedirection(systemResource, result, response) && createProcess(systemResource, result, response)) {
+			result = runProcess(systemResource, result, response);
+		}
+		saveResult(result);
+	}
+	catch (const std::exception & e) {
+		saveResult(result);
+	}
+	freeSystemResource(systemResource);
 	return 0;
 }
+/** 获取运行资源 **/
+Response readResponse() {
+	Response response = Response();
+	response.setCmd("D:\\code\\d.exe");
+	response.setInputPath("D:\\code\\aa.txt");
+	response.setOutputPath("D:\\code\\bb.txt");
+	response.setTimeLimit(1000);
+	response.setMemoryLimit(1024 * 528);
+	return response;
+}
+/** 保存运行状态 **/
+void saveResult(Result& result) {
+	cout << "退出状态：" << result.getExitCode() << endl;
+	cout << "运行时间: " << result.getTimeUsage() << endl;
+	cout << "运行内存: " << result.getMemoryUsage() << endl;
+}
+/** 释放资源 **/
+void freeSystemResource(SystemResource& systemResource) {
+	HANDLE hInput = systemResource.getHInput();
+	HANDLE hOutput = systemResource.getHOutput();
+	CloseHandle(hInput);
+	CloseHandle(hOutput);
+}
+
 /** 重定向子进程的I/O. **/
 bool setupIoRedirection(SystemResource& systemResource, Result& result, Response& respone) {
 	SECURITY_ATTRIBUTES sa;
@@ -200,7 +249,8 @@ bool setupIoRedirection(SystemResource& systemResource, Result& result, Response
 	sa.bInheritHandle = TRUE;
 	wstring inputFilePath = getWidestring(respone.getInputPath());
 	wstring outputFilePath = getWidestring(respone.getOutputPath());
-    STARTUPINFO startup =  systemResource.getStartup();
+	STARTUPINFO startup = systemResource.getStartup();
+	HANDLE hInput = systemResource.getHInput();
 	/*判断字符串不能为空*/
 	if (!inputFilePath.empty()) {
 		/*输入文件句柄*/
@@ -210,8 +260,9 @@ bool setupIoRedirection(SystemResource& systemResource, Result& result, Response
 		}
 	}
 	/*判断文件不能为空*/
+	HANDLE hOutput = systemResource.getHOutput();
 	if (!outputFilePath.empty()) {
-		/*输出文件局部*/
+		/*输出文件句柄*/
 		hOutput = CreateFileW(outputFilePath.c_str(), GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, &sa, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 		if (hOutput == INVALID_HANDLE_VALUE) {
 			return false;
@@ -226,13 +277,13 @@ bool setupIoRedirection(SystemResource& systemResource, Result& result, Response
 	startup.hStdError = hOutput;
 	/*重定向进程错误输出*/
 	startup.hStdOutput = hOutput;
-    systemResource.setStartup(startup);
+	systemResource.setStartup(startup);
 	return true;
 }
 
 /** 创建进程. **/
 bool createProcess(SystemResource& systemResource, Result& result, Response& respone) {
-    string commandLine = respone.getCmd();
+	string commandLine = respone.getCmd();
 	char cmd[1000];
 	int i = 0;
 	for (i = 0; i < commandLine.length(); i++)
@@ -242,6 +293,7 @@ bool createProcess(SystemResource& systemResource, Result& result, Response& res
 	bool success = CreateProcessA(NULL, cmd, NULL, NULL, TRUE, CREATE_SUSPENDED, NULL, NULL, &systemResource.getStartup(), &systemResource.getProcess());
 	return success;
 }
+
 /** 运行进程. **/
 Result runProcess(SystemResource& systemResource, Result& result, Response& response) {
 	/*唤醒进程*/
@@ -253,7 +305,7 @@ Result runProcess(SystemResource& systemResource, Result& result, Response& resp
 	/*开始时间*/
 	long long startTime = getMillisecondsNow();
 	/*等待进程运行结束*/
-	WaitForSingleObject(processInfo.hProcess, response.getTimeLimit());
+	WaitForSingleObject(systemResource.getProcess().hProcess, response.getTimeLimit());
 	/*结束时间*/
 	long long endTime = getMillisecondsNow();
 	/*计算运行时间*/
@@ -261,20 +313,26 @@ Result runProcess(SystemResource& systemResource, Result& result, Response& resp
 	/*获取内存*/
 	Result r1 = f1.get();
 	/*进程是否运行结束*/
-	if (getExitCode(systemResource.getProcess().hProcess) == STILL_ACTIVE) {
-		exitCode = 1;
+	PROCESS_INFORMATION process = systemResource.getProcess();
+	if (getExitCode(process.hProcess) == STILL_ACTIVE) {
+		result.setExitCode(1);
 		/*关闭进程*/
 		killProcess(systemResource, result, response);
 	}
-    int exitCode systemResource.getProcess().hProcess;
-	return r1;
+	result.setExitCode(result.getExitCode() | r1.getExitCode() | r2.getExitCode());
+	result.setMemoryUsage(r1.getMemoryUsage());
+	result.setTimeUsage(r2.getTimeUsage());
+	return result;
 }
+
 /** 获取运行时内存占用最大值 **/
 Result getMaxMemoryUsage(SystemResource& systemResource, Result& result, Response& response) {
 	int maxMemoryUsage = 0, currentMemoryUsage = 0;
+	PROCESS_INFORMATION process = systemResource.getProcess();
+	result.setExitCode(0);
 	do {
 		/*获取进程内存*/
-		currentMemoryUsage = getCurrentMemoryUsage(systemResource.getProcess().hProcess);
+		currentMemoryUsage = getCurrentMemoryUsage(process.hProcess);
 		/*判断当前内存是否的大小*/
 		if (currentMemoryUsage > maxMemoryUsage) {
 			maxMemoryUsage = currentMemoryUsage;
@@ -283,20 +341,23 @@ Result getMaxMemoryUsage(SystemResource& systemResource, Result& result, Respons
 		Sleep(10);
 		/*判断内存是否超限*/
 		if (response.getMemoryLimit() != 0 && currentMemoryUsage > response.getMemoryLimit()) {
+			result.setExitCode(1);
 			/*内存超限，杀死进程*/
 			killProcess(systemResource, result, response);
-			exitCode = 1;
 			break;
 		}
-	} while (getExitCode(systemResource.getProcess().hProcess) == STILL_ACTIVE);
-    Result r1 = new Result();
-	return maxMemoryUsage;
+
+	} while (getExitCode(process.hProcess) == STILL_ACTIVE);
+	result.setMemoryUsage(maxMemoryUsage);
+	return result;
 }
 
 /** 监听程序运行时间 **/
 Result timeoutProcess(SystemResource& systemResource, Result& result, Response& response) {
 	/*开始时间*/
+	PROCESS_INFORMATION process = systemResource.getProcess();
 	long long startTime = getMillisecondsNow(), timeUsage = 0;
+	result.setExitCode(0);
 	do {
 		/*结束时间*/
 		long long endTime = getMillisecondsNow();
@@ -304,14 +365,16 @@ Result timeoutProcess(SystemResource& systemResource, Result& result, Response& 
 		/*休眠10ms*/
 		Sleep(10);
 		if (timeUsage >= response.getTimeLimit()) {
+			result.setExitCode(1);
 			/*时间超限，杀死进程*/
 			killProcess(systemResource, result, response);
 			break;
 		}
-	} while (getExitCode(processInfo.hProcess) == STILL_ACTIVE);
-    Result r1 = new Result();
-	return r1;
+	} while (getExitCode(process.hProcess) == STILL_ACTIVE);
+	result.setTimeUsage(timeUsage);
+	return result;
 }
+
 /** 获取进程内存占用情况. **/
 int getCurrentMemoryUsage(HANDLE& hProcess) {
 	PROCESS_MEMORY_COUNTERS pmc;
@@ -335,9 +398,9 @@ long long getMillisecondsNow() {
 
 /** 强制销毁进程. **/
 bool killProcess(SystemResource& systemResource, Result& result, Response& response) {
-    PROCESS_INFORMATION process = systemResource.getProcess();
+	PROCESS_INFORMATION process = systemResource.getProcess();
 	if (getExitCode(process.hProcess) == STILL_ACTIVE) {
-        /** 获取进程id **/
+		/** 获取进程id **/
 		const string processId = dwordTostring(process.dwProcessId);
 		const std::string str = "taskkill /pid " + processId + " -t -f";
 		const char* cmd = str.c_str();
