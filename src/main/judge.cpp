@@ -140,7 +140,6 @@ public:
 		this->startup = startup;
 	}
 	~SystemResource() {
-		cout << "释放资源" << endl;
 		CloseHandle(hInput);
 		CloseHandle(hOutput);
 	}
@@ -217,21 +216,26 @@ int main() {
 	freeSystemResource(systemResource);
 	return 0;
 }
-/** 获取运行资源 **/
+/** 输入运行命令和输入输出文件路径以及内存与时间限制 **/
 Response readResponse() {
 	Response response = Response();
-	response.setCmd("D:\\code\\d.exe");
-	response.setInputPath("D:\\code\\aa.txt");
-	response.setOutputPath("D:\\code\\bb.txt");
-	response.setTimeLimit(1000);
-	response.setMemoryLimit(1024 * 528);
+	string cmd, inputPath, outputPath;
+	int timeLimit, memoryLimit;
+	cin >> cmd >> inputPath >> outputPath >> timeLimit >> memoryLimit;
+	response.setCmd(cmd);
+	response.setInputPath(inputPath);
+	response.setOutputPath(outputPath);
+	response.setTimeLimit(timeLimit);
+	response.setMemoryLimit(memoryLimit);
 	return response;
 }
-/** 保存运行状态 **/
+/** 输出运行状态 **/
 void saveResult(Result& result) {
-	cout << "退出状态：" << result.getExitCode() << endl;
-	cout << "运行时间: " << result.getTimeUsage() << endl;
-	cout << "运行内存: " << result.getMemoryUsage() << endl;
+	cout << "{" << endl;
+	cout << " \"exitCode\":" << result.getExitCode() << "," << endl;
+	cout << " \"timeUsage\":" << result.getTimeUsage() << "," << endl;
+	cout << " \"memoryUsage\":" << result.getMemoryUsage() << endl;
+	cout << "}" << endl;
 }
 /** 释放资源 **/
 void freeSystemResource(SystemResource& systemResource) {
