@@ -45,6 +45,8 @@
         <zookeeper.version>3.4.10</zookeeper.version>
         <jwt.version>3.4.1</jwt.version>
         <markdown.version>0.10.0</markdown.version>
+        <zip.version>1.3.3</zip.version>
+        <hutool-http.version>5.3.7</hutool-http.version>
     </properties>
     <repositories>
         <repository>
@@ -255,6 +257,18 @@
             <artifactId>spring-boot-devtools</artifactId>
             <scope>runtime</scope>
             <optional>true</optional>
+        </dependency>
+        <!--   http下载工具     -->
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-http</artifactId>
+            <version>${hutool-http.version}</version>
+        </dependency>
+        <!-- zip解压工具       -->
+        <dependency>
+            <groupId>net.lingala.zip4j</groupId>
+            <artifactId>zip4j</artifactId>
+            <version>${zip.version}</version>
         </dependency>
     </dependencies>
 
