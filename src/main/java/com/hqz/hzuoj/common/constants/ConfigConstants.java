@@ -1,7 +1,9 @@
 package com.hqz.hzuoj.common.constants;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
+@Component
 public class ConfigConstants {
 
     /**
@@ -17,8 +19,8 @@ public class ConfigConstants {
     /**
      * 程序运行结果输出路径
      */
-    @Value("${judgeResultPath}")
-    public String judgeResultPath;
+    @Value("${judgeOutputPath}")
+    public String judgeOutputPath;
     /**
      * 题目上传测试压缩包路径
      */
@@ -29,5 +31,11 @@ public class ConfigConstants {
      */
     @Value("${submitCasePath}")
     public String submitCasePath;
+
+    /**
+     * 自测输出输出文件存放路径
+     */
+    @Value("${judgeTestPath}")
+    public String judgeTestPath;
 
 }

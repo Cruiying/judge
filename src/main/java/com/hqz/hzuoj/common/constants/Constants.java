@@ -1,10 +1,13 @@
 package com.hqz.hzuoj.common.constants;
 
+import org.springframework.stereotype.Component;
+
 /**
  * 系统常量类配置
  * @author Cruiying
  * @date 2020/6/28 9:47
  */
+@Component
 public class Constants {
 
     /**
