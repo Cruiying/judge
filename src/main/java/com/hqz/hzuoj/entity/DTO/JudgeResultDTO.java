@@ -6,7 +6,7 @@ import lombok.Data;
 import java.io.Serializable;
 
 @Data
-public class ResultDTO implements Serializable {
+public class JudgeResultDTO implements Serializable {
 
     /**
      * 运行结束状态

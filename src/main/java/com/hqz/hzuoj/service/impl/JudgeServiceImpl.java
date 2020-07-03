@@ -1,13 +1,11 @@
 package com.hqz.hzuoj.service.impl;
 
 import com.hqz.hzuoj.entity.DTO.JudgeDataDTO;
-import com.hqz.hzuoj.entity.DTO.ResultDTO;
+import com.hqz.hzuoj.entity.DTO.JudgeResultDTO;
 import com.hqz.hzuoj.service.JudgeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
-import java.util.Map;
 
 @Service
 @Slf4j
@@ -17,7 +15,7 @@ public class JudgeServiceImpl implements JudgeService {
     private String judge;
 
 
-    private ResultDTO runner(JudgeDataDTO judgeDataDTO) {
+    private JudgeResultDTO runner(JudgeDataDTO judgeDataDTO) {
         ProcessBuilder processBuilder = new ProcessBuilder(judge);
         try {
             processBuilder.redirectInput();
@@ -31,8 +29,8 @@ public class JudgeServiceImpl implements JudgeService {
         return null;
     }
 
-
-    public ResultDTO getCompileResult(JudgeDataDTO judgeDataDTO) {
+    @Override
+    public JudgeResultDTO getCompileResult(JudgeDataDTO judgeDataDTO) {
         judgeDataDTO.setMemoryLimit(1024 * 128);
         judgeDataDTO.setTimeLimit(15000);
         return runner(judgeDataDTO);
@@ -41,7 +39,8 @@ public class JudgeServiceImpl implements JudgeService {
     /**
      * 执行运行命令
      */
-    public ResultDTO getRuntimeResult(JudgeDataDTO judgeDataDTO) {
+    @Override
+    public JudgeResultDTO getRuntimeResult(JudgeDataDTO judgeDataDTO) {
         return runner(judgeDataDTO);
     }
 }
