@@ -3,6 +3,7 @@ package com.hqz.hzuoj.service.impl;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.StrUtil;
 import com.hqz.hzuoj.common.constants.ConfigConstants;
+import com.hqz.hzuoj.common.exception.MyException;
 import com.hqz.hzuoj.config.CloudStorageConfig;
 import com.hqz.hzuoj.entity.model.Language;
 import com.hqz.hzuoj.entity.model.Problem;
@@ -41,10 +42,11 @@ public class PreprocessorServiceImpl implements PreprocessorService {
      * @throws NotFoundException
      * @throws IOException
      */
-    public void createRuntimeCode(String userCode, Language language, String workDirectory, String baseFileName) throws NotFoundException, IOException {
+    @Override
+    public void createRuntimeCode(String userCode, Language language, String workDirectory, String baseFileName) throws IOException {
         File workDirFile = new File(workDirectory);
         if (!workDirFile.exists() && !workDirFile.mkdirs()) {
-            throw new NotFoundException("运行目录不存在");
+            throw new MyException("运行目录不存在");
         }
         //设置编译运行目录下的文件权限
         setWorkDirectoryPermission(workDirFile);
@@ -65,6 +67,7 @@ public class PreprocessorServiceImpl implements PreprocessorService {
      * @return
      * @throws IOException
      */
+    @Override
     public String loadProblemData(Problem problem)  {
         String problemDataAddress = problem.getDataAddress();
         String problemDataVersions = problem.getDataVersion();
@@ -112,6 +115,7 @@ public class PreprocessorServiceImpl implements PreprocessorService {
      * @param fileName
      * @param path
      */
+    @Override
     public void download(String fileName, String path) {
         String encodedFileName = null;
         try {
@@ -167,12 +171,13 @@ public class PreprocessorServiceImpl implements PreprocessorService {
      *
      * @param test
      */
-    public void saveTestData(Test test) throws NotFoundException, IOException {
+    @Override
+    public void saveTestData(Test test) throws IOException {
         synchronized (this) {
             String checkpointsFilePath = String.format("%s/%s", config.judgeTestPath, test.getTestId());
             File checkpointsDirFile = new File(checkpointsFilePath);
             if (!checkpointsDirFile.exists() && !checkpointsDirFile.mkdirs()) {
-                throw new NotFoundException("Failed to create the checkpoints directory: " + checkpointsFilePath);
+                throw new MyException("Failed to create the checkpoints directory: " + checkpointsFilePath);
             }
             {
                 String inputFilePath = String.format("%s/input#%s.in", checkpointsFilePath, test.getTestId());

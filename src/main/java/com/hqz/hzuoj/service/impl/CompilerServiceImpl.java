@@ -43,7 +43,7 @@ public class CompilerServiceImpl implements CompilerService {
      * @return 编译命令
      */
     private String getCompileCmd(Language language, String workDirectory, String baseFileName) {
-        String filePathWithoutExtension = String.format("%s/%s", new Object[]{workDirectory, baseFileName});
+        String filePathWithoutExtension = String.format("%s/%s", workDirectory, baseFileName);
         return language.getCompileCmd().replaceAll("\\{filename\\}", filePathWithoutExtension);
     }
 
@@ -107,7 +107,7 @@ public class CompilerServiceImpl implements CompilerService {
      * @return 编译信息输出的文件路径
      */
     public String getCompileInfoPath(String workDirectory, String baseFileName) {
-        return String.format("%s/%s_compileInfo.txt", new Object[]{workDirectory, baseFileName});
+        return String.format("%s/%s_compileInfo.txt", workDirectory, baseFileName);
     }
 
 }
