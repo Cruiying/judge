@@ -36,22 +36,16 @@ public interface JudgeMessageDispatcherService {
      * @param submitId
      * @param submit
      * @param submitCase
-     * @param usedTime
-     * @param usedMemory
-     * @param i
      * @param completed
      */
-    void submitOneTestPointFinished(Integer submitId, Submit submit, SubmitCase submitCase, int usedTime, int usedMemory, int i, boolean completed);
+    void submitOneTestPointFinished(Integer submitId, Submit submit, SubmitCase submitCase, boolean completed);
 
     /**
      * 所有测试点运行完成
      * @param submitId
      * @param submit
      * @param submitCases
-     * @param usedTime
-     * @param usedMemory
-     * @param i
      * @param completed
      */
-    void submitAllTestPointsFinished(Integer submitId, Submit submit, List<SubmitCase> submitCases, int usedTime, int usedMemory, int i, boolean completed);
+    void submitAllTestPointsFinished(Integer submitId, Submit submit, List<SubmitCase> submitCases, boolean completed);
 }
