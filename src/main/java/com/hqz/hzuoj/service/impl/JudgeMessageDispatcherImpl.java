@@ -51,7 +51,7 @@ public class JudgeMessageDispatcherImpl implements JudgeMessageDispatcherService
         submit.setRuntimeTime(0);
         submit.setRuntimeMemory(0);
         submitService.update(submit);
-        sendSubmitMessage("System Error", completed, submit, submitId);
+        sendSubmitMessage(submitId, submit, "System Error", completed);
     }
 
     /**
@@ -69,10 +69,10 @@ public class JudgeMessageDispatcherImpl implements JudgeMessageDispatcherService
      * @param submitId
      * @param submit
      * @param compileResult
-     * @param compileSuccess
+     * @param completed
      */
     @Override
-    public void onSubmitCompileFinished(Integer submitId, Submit submit, CompileResultDTO compileResult, Boolean compileSuccess) {
+    public void onSubmitCompileFinished(Integer submitId, Submit submit, CompileResultDTO compileResult, boolean completed) {
 
     }
 
@@ -84,10 +84,10 @@ public class JudgeMessageDispatcherImpl implements JudgeMessageDispatcherService
      * @param usedTime
      * @param usedMemory
      * @param i
-     * @param b
+     * @param completed
      */
     @Override
-    public void submitOneTestPointFinished(Integer submitId, Submit submit, SubmitCase submitCase, int usedTime, int usedMemory, int i, boolean b) {
+    public void submitOneTestPointFinished(Integer submitId, Submit submit, SubmitCase submitCase, int usedTime, int usedMemory, int i, boolean completed) {
 
     }
 
@@ -99,23 +99,22 @@ public class JudgeMessageDispatcherImpl implements JudgeMessageDispatcherService
      * @param usedTime
      * @param usedMemory
      * @param i
-     * @param b
+     * @param completed
      */
     @Override
-    public void submitAllTestPointsFinished(Integer submitId, Submit submit, List<SubmitCase> submitCases, int usedTime, int usedMemory, int i, boolean b) {
+    public void submitAllTestPointsFinished(Integer submitId, Submit submit, List<SubmitCase> submitCases, int usedTime, int usedMemory, int i, boolean completed) {
 
     }
 
 
     /**
      * 向测评记录队列发送消息
-     *
+     * @param submitId
+     * @param submit
      * @param event
      * @param completed
-     * @param submit
-     * @param submitId
      */
-    private void sendSubmitMessage(String event, Boolean completed, Submit submit, Integer submitId) {
+    private void sendSubmitMessage(Integer submitId, Submit submit, String event, boolean completed) {
         Map<String, Object> mapMessage = new HashMap<>();
         mapMessage.put("event", event);
         mapMessage.put("completed", completed);

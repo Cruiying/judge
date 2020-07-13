@@ -11,9 +11,9 @@ public interface JudgeMessageDispatcherService {
      * 提交发生错误
      * @param submitId
      * @param submit
-     * @param b
+     * @param completed
      */
-    void onSubmitErrorOccurred(Integer submitId, Submit submit, boolean b);
+    void onSubmitErrorOccurred(Integer submitId, Submit submit, boolean completed);
 
     /**
      * 代码开始编译
@@ -27,9 +27,9 @@ public interface JudgeMessageDispatcherService {
      * @param submitId
      * @param submit
      * @param compileResult
-     * @param compileSuccess
+     * @param completed
      */
-    void onSubmitCompileFinished(Integer submitId, Submit submit, CompileResultDTO compileResult, Boolean compileSuccess);
+    void onSubmitCompileFinished(Integer submitId, Submit submit, CompileResultDTO compileResult, boolean completed);
 
     /**
      * 测试点运行完成
@@ -39,9 +39,9 @@ public interface JudgeMessageDispatcherService {
      * @param usedTime
      * @param usedMemory
      * @param i
-     * @param b
+     * @param completed
      */
-    void submitOneTestPointFinished(Integer submitId, Submit submit, SubmitCase submitCase, int usedTime, int usedMemory, int i, boolean b);
+    void submitOneTestPointFinished(Integer submitId, Submit submit, SubmitCase submitCase, int usedTime, int usedMemory, int i, boolean completed);
 
     /**
      * 所有测试点运行完成
@@ -51,7 +51,7 @@ public interface JudgeMessageDispatcherService {
      * @param usedTime
      * @param usedMemory
      * @param i
-     * @param b
+     * @param completed
      */
-    void submitAllTestPointsFinished(Integer submitId, Submit submit, List<SubmitCase> submitCases, int usedTime, int usedMemory, int i, boolean b);
+    void submitAllTestPointsFinished(Integer submitId, Submit submit, List<SubmitCase> submitCases, int usedTime, int usedMemory, int i, boolean completed);
 }
