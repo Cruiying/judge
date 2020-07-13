@@ -63,4 +63,10 @@ public interface ProblemDataMapper {
      */
     int deleteById(Integer problemDataId);
 
+    /**
+     * 获取题目测试数据
+     * @param problemId
+     * @return
+     */
+    List<ProblemData> findProblemDatas(Integer problemId);
 }

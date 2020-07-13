@@ -77,4 +77,14 @@ public class ProblemDataServiceImpl implements ProblemDataService {
         return this.problemDataMapper.deleteById(problemDataId) > 0;
     }
 
+    /**
+     * 获取题目测试数据
+     * @param problemId
+     * @return
+     */
+    @Override
+    public List<ProblemData> findProblemDatas(Integer problemId) {
+        return problemDataMapper.findProblemDatas(problemId);
+    }
+
 }

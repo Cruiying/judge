@@ -54,4 +54,10 @@ public interface ProblemDataService {
      */
     boolean deleteById(Integer problemDataId);
 
+    /**
+     * 获取题目测试数据
+     * @param problemId
+     * @return
+     */
+    List<ProblemData> findProblemDatas(Integer problemId);
 }
