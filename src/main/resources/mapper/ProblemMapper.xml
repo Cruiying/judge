@@ -89,29 +89,6 @@
             </if>
         </where>
     </select>
-<!--   通过ID获取比赛题目 -->
-    <select id="findById" resultType="com.hqz.hzuoj.entity.DO.ProblemDO">
-        select * from problem where problem_id = #{problemId}
-    </select>
-<!--    获取题目列表-->
-    <select id="findProblems" resultType="com.hqz.hzuoj.entity.DO.ProblemListDO">
-        select * from problem p
-        left join problem_tag pt on p.problem_id = pt.problem_id
-        left join dictionary_option dict on dict.option_code = p.level_code
-        <where>
-            1 = 1
-            <if test="levelCode != null">
-                and p.level_code = #{levelCode}
-            </if>
-            <if test="tags != null and tags.length>0">
-                and pt.tag_code in (#{tags})
-            </if>
-            <if test="title != null">
-                and p.title like concat('%', #{title}, '%')
-            </if>
-
-        </where>
-    </select>
 
     <!--新增所有列-->
     <insert id="insert" keyProperty="problemId" useGeneratedKeys="true">
