@@ -53,4 +53,9 @@ public interface SubmitCaseService {
      */
     boolean deleteById(Integer submitCaseId);
 
+    /**
+     * 删除提交测试点
+     * @param submitId
+     */
+    void deleteBySubmitId(Integer submitId);
 }

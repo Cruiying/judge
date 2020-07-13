@@ -17,7 +17,7 @@ import java.util.List;
 @Service("submitCaseService")
 public class SubmitCaseServiceImpl implements SubmitCaseService {
     @Resource
-    private SubmitCaseMapper submitCaseDao;
+    private SubmitCaseMapper submitCaseMapper;
 
     /**
      * 通过ID查询单条数据
@@ -27,7 +27,7 @@ public class SubmitCaseServiceImpl implements SubmitCaseService {
      */
     @Override
     public SubmitCase queryById(Integer submitCaseId) {
-        return this.submitCaseDao.queryById(submitCaseId);
+        return this.submitCaseMapper.queryById(submitCaseId);
     }
 
     /**
@@ -39,7 +39,7 @@ public class SubmitCaseServiceImpl implements SubmitCaseService {
      */
     @Override
     public List<SubmitCase> queryAllByLimit(int offset, int limit) {
-        return this.submitCaseDao.queryAllByLimit(offset, limit);
+        return this.submitCaseMapper.queryAllByLimit(offset, limit);
     }
 
     /**
@@ -50,7 +50,7 @@ public class SubmitCaseServiceImpl implements SubmitCaseService {
      */
     @Override
     public SubmitCase insert(SubmitCase submitCase) {
-        this.submitCaseDao.insert(submitCase);
+        this.submitCaseMapper.insert(submitCase);
         return submitCase;
     }
 
@@ -62,7 +62,7 @@ public class SubmitCaseServiceImpl implements SubmitCaseService {
      */
     @Override
     public SubmitCase update(SubmitCase submitCase) {
-        this.submitCaseDao.update(submitCase);
+        this.submitCaseMapper.update(submitCase);
         return this.queryById(submitCase.getSubmitCaseId());
     }
 
@@ -74,6 +74,15 @@ public class SubmitCaseServiceImpl implements SubmitCaseService {
      */
     @Override
     public boolean deleteById(Integer submitCaseId) {
-        return this.submitCaseDao.deleteById(submitCaseId) > 0;
+        return this.submitCaseMapper.deleteById(submitCaseId) > 0;
+    }
+
+    /**
+     * 删除提交测试点
+     * @param submitId
+     */
+    @Override
+    public void deleteBySubmitId(Integer submitId) {
+        this.submitCaseMapper.deleteBySubmitId(submitId);
     }
 }
