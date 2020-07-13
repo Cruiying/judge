@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqz.hzuoj.mapper.LanguageMapper">
+
+    <resultMap type="com.hqz.hzuoj.entity.model.Language" id="LanguageMap">
+        <result property="languageId" column="language_id" jdbcType="INTEGER"/>
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+        <result property="compileCmd" column="compile_cmd" jdbcType="VARCHAR"/>
+        <result property="runtimeCmd" column="runtime_cmd" jdbcType="VARCHAR"/>
+        <result property="model" column="model" jdbcType="VARCHAR"/>
+        <result property="suffix" column="suffix" jdbcType="VARCHAR"/>
+        <result property="mulTime" column="mul_time" jdbcType="INTEGER"/>
+        <result property="mulMemory" column="mul_memory" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="LanguageMap">
+        select
+          language_id, name, compile_cmd, runtime_cmd, model, suffix, mul_time, mul_memory
+        from oj.language
+        where language_id = #{languageId}
+    </select>
+<!--    获取所有语言-->
+    <select id="findLanguages" resultType="com.hqz.hzuoj.entity.model.Language">
+        select language_id,mul_time,mul_memory,`name`,model from `language`
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="languageId" useGeneratedKeys="true">
+        insert into oj.language(name, compile_cmd, runtime_cmd, model, suffix, mul_time, mul_memory)
+        values (#{name}, #{compileCmd}, #{runtimeCmd}, #{model}, #{suffix}, #{mulTime}, #{mulMemory})
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update oj.language
+        <set>
+            <if test="name != null and name != ''">
+                name = #{name},
+            </if>
+            <if test="compileCmd != null and compileCmd != ''">
+                compile_cmd = #{compileCmd},
+            </if>
+            <if test="runtimeCmd != null and runtimeCmd != ''">
+                runtime_cmd = #{runtimeCmd},
+            </if>
+            <if test="model != null and model != ''">
+                model = #{model},
+            </if>
+            <if test="suffix != null and suffix != ''">
+                suffix = #{suffix},
+            </if>
+            <if test="mulTime != null">
+                mul_time = #{mulTime},
+            </if>
+            <if test="mulMemory != null">
+                mul_memory = #{mulMemory},
+            </if>
+        </set>
+        where language_id = #{languageId}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from oj.language where language_id = #{languageId}
+    </delete>
+
+</mapper>
