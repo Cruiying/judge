@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqz.hzuoj.mapper.SubmitMapper">
+
+    <resultMap type="com.hqz.hzuoj.entity.model.Submit" id="SubmitMap">
+        <result property="submitId" column="submit_id" jdbcType="INTEGER"/>
+        <result property="problemId" column="problem_id" jdbcType="INTEGER"/>
+        <result property="userId" column="user_id" jdbcType="INTEGER"/>
+        <result property="submitTime" column="submit_time" jdbcType="TIMESTAMP"/>
+        <result property="code" column="code" jdbcType="VARCHAR"/>
+        <result property="compileInfo" column="compile_info" jdbcType="VARCHAR"/>
+        <result property="languageId" column="language_id" jdbcType="INTEGER"/>
+        <result property="codeLength" column="code_length" jdbcType="INTEGER"/>
+        <result property="publicCode" column="public_code" jdbcType="VARCHAR"/>
+        <result property="judgeResultId" column="judge_result_id" jdbcType="INTEGER"/>
+        <result property="score" column="score" jdbcType="INTEGER"/>
+        <result property="runtimeTime" column="runtime_time" jdbcType="INTEGER"/>
+        <result property="runtimeMemory" column="runtime_memory" jdbcType="INTEGER"/>
+        <result property="submitType" column="submit_type" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="SubmitMap">
+        select
+          submit_id, problem_id, user_id, submit_time, code, compile_info, language_id, code_length, public_code, judge_result_id, score, runtime_time, runtime_memory, submit_type
+        from oj.submit
+        where submit_id = #{submitId}
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="SubmitMap">
+        select
+          submit_id, problem_id, user_id, submit_time, code, compile_info, language_id, code_length, public_code, judge_result_id, score, runtime_time, runtime_memory, submit_type
+        from oj.submit
+        limit #{offset}, #{limit}
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="queryAll" resultMap="SubmitMap">
+        select
+          submit_id, problem_id, user_id, submit_time, code, compile_info, language_id, code_length, public_code, judge_result_id, score, runtime_time, runtime_memory, submit_type
+        from oj.submit
+        <where>
+            <if test="submitId != null">
+                and submit_id = #{submitId}
+            </if>
+            <if test="problemId != null">
+                and problem_id = #{problemId}
+            </if>
+            <if test="userId != null">
+                and user_id = #{userId}
+            </if>
+            <if test="submitTime != null">
+                and submit_time = #{submitTime}
+            </if>
+            <if test="code != null and code != ''">
+                and code = #{code}
+            </if>
+            <if test="compileInfo != null and compileInfo != ''">
+                and compile_info = #{compileInfo}
+            </if>
+            <if test="languageId != null">
+                and language_id = #{languageId}
+            </if>
+            <if test="codeLength != null">
+                and code_length = #{codeLength}
+            </if>
+            <if test="publicCode != null and publicCode != ''">
+                and public_code = #{publicCode}
+            </if>
+            <if test="judgeResultId != null">
+                and judge_result_id = #{judgeResultId}
+            </if>
+            <if test="score != null">
+                and score = #{score}
+            </if>
+            <if test="runtimeTime != null">
+                and runtime_time = #{runtimeTime}
+            </if>
+            <if test="runtimeMemory != null">
+                and runtime_memory = #{runtimeMemory}
+            </if>
+            <if test="submitType != null and submitType != ''">
+                and submit_type = #{submitType}
+            </if>
+        </where>
+    </select>
+    <select id="findProblemAcceptedTotal" resultType="java.lang.Integer">
+        select count(1) from submit s
+        <where>
+            1 = 1
+            <if test="submitId != null">
+                and s.submit_id = #{submitId}
+            </if>
+            <if test="judgeResultId != null">
+                and s.judge_result_id = #{judgeResultId}
+            </if>
+            <if test="languageId != null">
+                and s.language_id = #{languageId}
+            </if>
+            <if test="userId != null">
+                and s.user_id = #{userId}
+            </if>
+            <if test="problemId != null">
+                and s.problem_id = #{problemId}
+            </if>
+            and s.public_code = #{publicCode}
+            and s.submit_type = #{type}
+        </where>
+    </select>
+    <select id="findSubmit" resultType="com.hqz.hzuoj.entity.DO.SubmitDO">
+        select * from submit s
+        join problem p on s.problem_id = p.problem_id
+        join `language` l on s.language_id = l.language_id
+        join judge_result jr on s.judge_result_id = jr.judge_result_id
+        join `user` u on s.user_id = u.user_id
+        where s.submit_id = #{submitId}
+    </select>
+    <select id="findSubmits" resultType="com.hqz.hzuoj.entity.DO.SubmitDO">
+        select * from submit s
+        join problem p on s.problem_id = p.problem_id
+        join `language` l on s.language_id = l.language_id
+        join judge_result jr on s.judge_result_id = jr.judge_result_id
+        join `user` u on s.user_id = u.user_id
+        <where>
+            1 = 1
+            <if test="submitId != null">
+                and s.submit_id = #{submitId}
+            </if>
+            <if test="judgeResultId != null">
+                and s.judge_result_id = #{judgeResultId}
+            </if>
+            <if test="languageId != null">
+                and s.language_id = #{languageId}
+            </if>
+            <if test="userId != null">
+                and s.user_id = #{userId}
+            </if>
+            <if test="problemId != null">
+                and s.problem_id = #{problemId}
+            </if>
+            <if test="username != null">
+                and u.username like concat('%', #{username}, '%')
+            </if>
+            <if test="title != null">
+                and p.title like concat('%', #{title}, '%')
+            </if>
+            and s.public_code = #{publicCode}
+            and s.submit_type = #{type}
+        </where>
+    </select>
+    <select id="findProblemSubmitTotal" resultType="java.lang.Integer">
+        select count(1) from submit s
+        <where>
+            1 = 1
+            <if test="submitId != null">
+                and s.submit_id = #{submitId}
+            </if>
+            <if test="judgeResultId != null">
+                and s.judge_result_id = #{judgeResultId}
+            </if>
+            <if test="languageId != null">
+                and s.language_id = #{languageId}
+            </if>
+            <if test="userId != null">
+                and s.user_id = #{userId}
+            </if>
+            <if test="problemId != null">
+                and s.problem_id = #{problemId}
+            </if>
+            and s.public_code = #{publicCode}
+            and s.submit_type = #{type}
+        </where>
+    </select>
+    <select id="findProblemSubmit" resultType="java.lang.Integer">
+        select count(1) from submit s
+        <where>
+            1 = 1
+            <if test="submitId != null">
+                and s.submit_id = #{submitId}
+            </if>
+            <if test="judgeResultId != null">
+                and s.judge_result_id = #{judgeResultId}
+            </if>
+            <if test="languageId != null">
+                and s.language_id = #{languageId}
+            </if>
+            <if test="userId != null">
+                and s.user_id = #{userId}
+            </if>
+            <if test="problemId != null">
+                and s.problem_id = #{problemId}
+            </if>
+            and s.public_code = #{publicCode}
+            and s.submit_type = #{type}
+        </where>
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="submitId" useGeneratedKeys="true">
+        insert into oj.submit(problem_id, user_id, submit_time, code, compile_info, language_id, code_length, public_code, judge_result_id, score, runtime_time, runtime_memory, submit_type)
+        values (#{problemId}, #{userId}, #{submitTime}, #{code}, #{compileInfo}, #{languageId}, #{codeLength}, #{publicCode}, #{judgeResultId}, #{score}, #{runtimeTime}, #{runtimeMemory}, #{submitType})
+    </insert>
+<!--    保存测评记录-->
+    <insert id="saveSubmit" keyProperty="submitId" useGeneratedKeys="true">
+        insert into submit(problem_id, user_id, submit_time, code, compile_info,
+            language_id, code_length, public_code, judge_result_id, score, runtime_time,
+            runtime_memory, submit_type)
+        values (#{problemId}, #{userId}, #{submitTime}, #{code}, #{compileInfo},
+            #{languageId}, #{codeLength}, #{publicCode}, #{judgeResultId}, #{score},
+            #{runtimeTime}, #{runtimeMemory}, #{submitType})
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update oj.submit
+        <set>
+            <if test="problemId != null">
+                problem_id = #{problemId},
+            </if>
+            <if test="userId != null">
+                user_id = #{userId},
+            </if>
+            <if test="submitTime != null">
+                submit_time = #{submitTime},
+            </if>
+            <if test="code != null and code != ''">
+                code = #{code},
+            </if>
+            <if test="compileInfo != null and compileInfo != ''">
+                compile_info = #{compileInfo},
+            </if>
+            <if test="languageId != null">
+                language_id = #{languageId},
+            </if>
+            <if test="codeLength != null">
+                code_length = #{codeLength},
+            </if>
+            <if test="publicCode != null and publicCode != ''">
+                public_code = #{publicCode},
+            </if>
+            <if test="judgeResultId != null">
+                judge_result_id = #{judgeResultId},
+            </if>
+            <if test="score != null">
+                score = #{score},
+            </if>
+            <if test="runtimeTime != null">
+                runtime_time = #{runtimeTime},
+            </if>
+            <if test="runtimeMemory != null">
+                runtime_memory = #{runtimeMemory},
+            </if>
+            <if test="submitType != null and submitType != ''">
+                submit_type = #{submitType},
+            </if>
+        </set>
+        where submit_id = #{submitId}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from oj.submit where submit_id = #{submitId}
+    </delete>
+
+</mapper>
