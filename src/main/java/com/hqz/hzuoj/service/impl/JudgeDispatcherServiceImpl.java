@@ -201,16 +201,19 @@ public class JudgeDispatcherServiceImpl implements JudgeDispatcherService {
                     submitCase.setRuntimeTime(runnerResult.getUsedTime());
                     submitCase.setJudgeResultId(judgeResultService.findJudgeResultByJudgeNameAbbr(runtimeResultAbbr).getJudgeResultId());
                     submitCases.add(submitCase);
+                    submit.setRuntimeMemory(usedMemory);
+                    submit.setRuntimeTime(usedTime);
+                    submit.setScore(acceptedTotal * 100 / size);
                     /*一个测试运行完成*/
-                    judgeMessageDispatcherService.submitOneTestPointFinished(submitId, submit, submitCase, usedTime, usedMemory, acceptedTotal * 100 / size, false);
+                    judgeMessageDispatcherService.submitOneTestPointFinished(submitId, submit, submitCase, false);
                 } catch (Exception e) {
                     /*系统发生错误*/
-                    judgeMessageDispatcherService.submitOneTestPointFinished(submitId, submit, submitCase, usedTime, usedMemory, acceptedTotal * 100 / size, false);
+                    judgeMessageDispatcherService.submitOneTestPointFinished(submitId, submit, submitCase, false);
                     log.error("一个测试点发生系统错误: {}", e.getMessage());
                 }
             }
             /*程序运行完成*/
-            judgeMessageDispatcherService.submitAllTestPointsFinished(submitId, submit, submitCases, usedTime, usedMemory, acceptedTotal * 100 / size, true);
+            judgeMessageDispatcherService.submitAllTestPointsFinished(submitId, submit, submitCases, true);
         } catch (Exception e) {
             /*系统发生错误*/
             judgeMessageDispatcherService.onSubmitErrorOccurred(submit.getSubmitId(), submit, true);

@@ -81,13 +81,10 @@ public class JudgeMessageDispatcherImpl implements JudgeMessageDispatcherService
      * @param submitId
      * @param submit
      * @param submitCase
-     * @param usedTime
-     * @param usedMemory
-     * @param i
      * @param completed
      */
     @Override
-    public void submitOneTestPointFinished(Integer submitId, Submit submit, SubmitCase submitCase, int usedTime, int usedMemory, int i, boolean completed) {
+    public void submitOneTestPointFinished(Integer submitId, Submit submit, SubmitCase submitCase, boolean completed) {
 
     }
 
@@ -96,13 +93,10 @@ public class JudgeMessageDispatcherImpl implements JudgeMessageDispatcherService
      * @param submitId
      * @param submit
      * @param submitCases
-     * @param usedTime
-     * @param usedMemory
-     * @param i
      * @param completed
      */
     @Override
-    public void submitAllTestPointsFinished(Integer submitId, Submit submit, List<SubmitCase> submitCases, int usedTime, int usedMemory, int i, boolean completed) {
+    public void submitAllTestPointsFinished(Integer submitId, Submit submit, List<SubmitCase> submitCases, boolean completed) {
 
     }
 
