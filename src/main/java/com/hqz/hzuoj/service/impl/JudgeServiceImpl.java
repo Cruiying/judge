@@ -9,6 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+/**
+ * 命令执行器
+ */
 @Service
 @Slf4j
 public class JudgeServiceImpl implements JudgeService {

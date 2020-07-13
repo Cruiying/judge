@@ -8,6 +8,9 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
+/**
+ * 对比器
+ */
 @Service
 public class ComparatorServiceImpl implements ComparatorService {
 

@@ -23,6 +23,9 @@ import cn.hutool.http.HttpUtil;
 import java.io.*;
 import java.net.URLEncoder;
 
+/**
+ * 预处理器
+ */
 @Service
 public class PreprocessorServiceImpl implements PreprocessorService {
 

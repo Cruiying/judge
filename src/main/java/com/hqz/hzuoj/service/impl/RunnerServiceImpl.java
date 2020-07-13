@@ -9,7 +9,9 @@ import com.hqz.hzuoj.service.JudgeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-
+/**
+ * 运行器
+ */
 @Service
 public class RunnerServiceImpl implements RunnerService {
 
