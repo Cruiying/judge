@@ -14,12 +14,14 @@ import com.qiniu.storage.Configuration;
 import com.qiniu.storage.Region;
 import com.qiniu.storage.model.FileInfo;
 import com.qiniu.util.Auth;
+import lombok.extern.slf4j.Slf4j;
 import net.lingala.zip4j.core.ZipFile;
 import org.apache.commons.io.IOUtils;
 import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import cn.hutool.http.HttpUtil;
+
 import java.io.*;
 import java.net.URLEncoder;
 
@@ -27,6 +29,7 @@ import java.net.URLEncoder;
  * 预处理器
  */
 @Service
+@Slf4j
 public class PreprocessorServiceImpl implements PreprocessorService {
 
     @Autowired
@@ -71,7 +74,7 @@ public class PreprocessorServiceImpl implements PreprocessorService {
      * @throws IOException
      */
     @Override
-    public String loadProblemData(Problem problem)  {
+    public String loadProblemData(Problem problem) {
         String problemDataAddress = problem.getDataAddress();
         String problemDataVersions = problem.getDataVersion();
         if (problemDataVersions == null) {
@@ -83,9 +86,9 @@ public class PreprocessorServiceImpl implements PreprocessorService {
         //下载路径
         String filepath = config.problemDataPath + problem.getProblemId();
         //解压路径
-        String dataZipPath = config.submitCasePath  + problem.getProblemId();
+        String dataZipPath = config.submitCasePath + problem.getProblemId();
         //确保路径存在
-        File downloadPath= new File(filepath);
+        File downloadPath = new File(filepath);
         File dataZipFilePath = new File(dataZipPath);
         if (!downloadPath.exists()) {
             downloadPath.mkdirs();
@@ -100,21 +103,30 @@ public class PreprocessorServiceImpl implements PreprocessorService {
             return "success";
         }
         try {
+            zipFile.createNewFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
             HttpUtil.downloadFile(problemDataAddress, FileUtil.file(saveFile));
+            zipFile.createNewFile();
             ZipFile zip = new ZipFile(zipFile);
             zip.extractAll(dataZipPath);
+            return "success";
         } catch (Exception e) {
             //如果发生异常，删除数据
-            e.printStackTrace();
+            log.error("加载题目测试数据错误: {}", e.getMessage());
             if (zipFile.exists()) {
                 zipFile.delete();
             }
+
         }
-        return "success";
+        return "error";
     }
 
     /**
      * 将文件名fileName下载文件到path
+     *
      * @param fileName
      * @param path
      */
@@ -135,6 +147,7 @@ public class PreprocessorServiceImpl implements PreprocessorService {
         //下载
         HttpUtil.downloadFile(finalUrl, FileUtil.file(path));
     }
+
     /**
      * 获取代码文件的后缀名.
      *

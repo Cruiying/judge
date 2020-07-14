@@ -49,7 +49,7 @@ public class Contest implements Serializable {
     * 比赛说明
     */
     @ApiModelProperty("比赛说明")
-    private String explain;
+    private String explanation;
     /**
     * 比赛创建人
     */
@@ -180,12 +180,12 @@ public class Contest implements Serializable {
         this.endTime = endTime;
     }
 
-    public String getExplain() {
-        return explain;
+    public String getexplanation() {
+        return explanation;
     }
 
-    public void setExplain(String explain) {
-        this.explain = explain;
+    public void setexplanation(String explanation) {
+        this.explanation = explanation;
     }
 
     public Integer getCreateId() {

@@ -7,7 +7,7 @@
         <result property="publicCode" column="public_code" jdbcType="VARCHAR"/>
         <result property="title" column="title" jdbcType="VARCHAR"/>
         <result property="content" column="content" jdbcType="VARCHAR"/>
-        <result property="explain" column="explain" jdbcType="VARCHAR"/>
+        <result property="explanation" column="explanation" jdbcType="VARCHAR"/>
         <result property="inputContent" column="input_content" jdbcType="VARCHAR"/>
         <result property="outputContent" column="output_content" jdbcType="VARCHAR"/>
         <result property="background" column="background" jdbcType="VARCHAR"/>
@@ -23,15 +23,15 @@
     <!--查询单个-->
     <select id="queryById" resultMap="ProblemMap">
         select
-          problem_id, public_code, title, content, explain, input_content, output_content, background, data_address, create_id, create_time, update_time, update_id, level_code, data_version
-        from oj.problem
+          problem_id, public_code, title, content, explanation, input_content, output_content, background, data_address, create_id, create_time, update_time, update_id, level_code, data_version
+        from problem
         where problem_id = #{problemId}
     </select>
 
     <!--查询指定行数据-->
     <select id="queryAllByLimit" resultMap="ProblemMap">
         select
-          problem_id, public_code, title, content, explain, input_content, output_content, background, data_address, create_id, create_time, update_time, update_id, level_code, data_version
+          problem_id, public_code, title, content, explanation, input_content, output_content, background, data_address, create_id, create_time, update_time, update_id, level_code, data_version
         from oj.problem
         limit #{offset}, #{limit}
     </select>
@@ -39,7 +39,7 @@
     <!--通过实体作为筛选条件查询-->
     <select id="queryAll" resultMap="ProblemMap">
         select
-          problem_id, public_code, title, content, explain, input_content, output_content, background, data_address, create_id, create_time, update_time, update_id, level_code, data_version
+          problem_id, public_code, title, content, explanation, input_content, output_content, background, data_address, create_id, create_time, update_time, update_id, level_code, data_version
         from oj.problem
         <where>
             <if test="problemId != null">
@@ -54,8 +54,8 @@
             <if test="content != null and content != ''">
                 and content = #{content}
             </if>
-            <if test="explain != null and explain != ''">
-                and explain = #{explain}
+            <if test="explanation != null and explanation != ''">
+                and explanation = #{explanation}
             </if>
             <if test="inputContent != null and inputContent != ''">
                 and input_content = #{inputContent}
@@ -92,8 +92,8 @@
 
     <!--新增所有列-->
     <insert id="insert" keyProperty="problemId" useGeneratedKeys="true">
-        insert into oj.problem(public_code, title, content, explain, input_content, output_content, background, data_address, create_id, create_time, update_time, update_id, level_code, data_version)
-        values (#{publicCode}, #{title}, #{content}, #{explain}, #{inputContent}, #{outputContent}, #{background}, #{dataAddress}, #{createId}, #{createTime}, #{updateTime}, #{updateId}, #{levelCode}, #{dataVersion})
+        insert into oj.problem(public_code, title, content, explanation, input_content, output_content, background, data_address, create_id, create_time, update_time, update_id, level_code, data_version)
+        values (#{publicCode}, #{title}, #{content}, #{explanation}, #{inputContent}, #{outputContent}, #{background}, #{dataAddress}, #{createId}, #{createTime}, #{updateTime}, #{updateId}, #{levelCode}, #{dataVersion})
     </insert>
 
     <!--通过主键修改数据-->
@@ -109,8 +109,8 @@
             <if test="content != null and content != ''">
                 content = #{content},
             </if>
-            <if test="explain != null and explain != ''">
-                explain = #{explain},
+            <if test="explanation != null and explanation != ''">
+                explanation = #{explanation},
             </if>
             <if test="inputContent != null and inputContent != ''">
                 input_content = #{inputContent},

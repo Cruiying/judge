@@ -69,8 +69,10 @@ public class JudgeDispatcherServiceImpl implements JudgeDispatcherService {
      */
     @Override
     public void RunningSubmit(Integer submitId) {
+        System.err.println("submitId:"+submitId);
         Submit submit = submitService.queryById(submitId);
         if (submit == null) {
+            System.err.println("error");
             judgeMessageDispatcherService.onSubmitErrorOccurred(submitId, new Submit(), true);
             return;
         }
@@ -264,8 +266,10 @@ public class JudgeDispatcherServiceImpl implements JudgeDispatcherService {
     private void cleanUp(String baseDirectory) {
         File file = new File(baseDirectory);
         try {
-            FileUtils.cleanDirectory(file);
-        } catch (IOException e) {
+            if (file.exists()) {
+                FileUtils.cleanDirectory(file);
+            }
+        } catch (Exception e) {
             log.error("文件清除失败: {}", e.getMessage());
         }
 
