@@ -145,7 +145,8 @@ public class JudgeDispatcherServiceImpl implements JudgeDispatcherService {
         //获取编译结果
         CompileResultDTO compileResult = compilerService.getCompileResult(language, workDirectory, baseFileName);
         //发送编译结果给用户
-        judgeMessageDispatcherService.onSubmitCompileFinished(submit.getSubmitId(), submit, compileResult, compileResult.getCompileSuccess());
+        submit.setCompileInfo(compileResult.getCompileInfo());
+        judgeMessageDispatcherService.onSubmitCompileFinished(submit.getSubmitId(), submit, compileResult.getCompileSuccess());
         //返回编译状态
         return compileResult.getCompileSuccess();
     }
@@ -157,23 +158,24 @@ public class JudgeDispatcherServiceImpl implements JudgeDispatcherService {
      * @param baseFileName  - 待执行的应用程序文件名(不包含文件后缀)
      */
     private void SubmitRun(Submit submit, String workDirectory, String baseFileName) throws NotFoundException {
-        ArrayList<SubmitCase> submitCases = new ArrayList<>();
         try {
             Integer submitId = submit.getSubmitId();
             Integer problemId = submit.getProblemId();
+            //获取测试数据
             List<ProblemData> problemDataList = problemDataService.findProblemDatas(problemId);
             if (problemDataList == null || problemDataList.size() == 0) {
                 judgeMessageDispatcherService.onSubmitErrorOccurred(submitId, submit, true);
                 return;
             }
             int size = problemDataList.size();
-            int acceptedTotal = 0, usedTime = 0, usedMemory = 0;
+            int acceptedTotal = 0, usedTime = 0, usedMemory = 0, judgeResultId = judgeResultService.findJudgeResultByJudgeNameAbbr("SE").getJudgeResultId();
             Language language = languageService.queryById(submit.getLanguageId());
             for (ProblemData problemData : problemDataList) {
                 SubmitCase submitCase = new SubmitCase();
                 try {
                     int problemDataId = problemData.getProblemDataId();
                     int score = 0;
+                    //生成运行程序重定向文件地址
                     String inputFilePath = config.problemDataPath + "/" + problemId + "/" + problemData.getInputPath();
                     String stdOutputFilePath = config.problemDataPath + "/" + problemId + "/" + problemData.getOutputPath();
                     String outputFilePath = String.format("%s/output#%s.txt", workDirectory, problemDataId);
@@ -191,19 +193,22 @@ public class JudgeDispatcherServiceImpl implements JudgeDispatcherService {
                     usedMemory = Integer.max(usedMemory, runnerResult.getUsedMemory());
                     //判断运行是否成功
                     String runtimeResultAbbr = getRuntimeResult(runnerResult, stdOutputFilePath, outputFilePath);
+                    JudgeResult judgeResult = judgeResultService.findJudgeResultByJudgeNameAbbr(runtimeResultAbbr);
                     if ("AC".equals(runtimeResultAbbr)) {
                         acceptedTotal++;
                         score = 100;
+                    } else {
+                        judgeResultId = judgeResult.getJudgeResultId();
                     }
                     //封装结果
                     submitCase.setScore(score);
                     submitCase.setRuntimeMemory(runnerResult.getUsedMemory());
                     submitCase.setRuntimeTime(runnerResult.getUsedTime());
                     submitCase.setJudgeResultId(judgeResultService.findJudgeResultByJudgeNameAbbr(runtimeResultAbbr).getJudgeResultId());
-                    submitCases.add(submitCase);
                     submit.setRuntimeMemory(usedMemory);
                     submit.setRuntimeTime(usedTime);
                     submit.setScore(acceptedTotal * 100 / size);
+                    submit.setJudgeResultId(judgeResultId);
                     /*一个测试运行完成*/
                     judgeMessageDispatcherService.submitOneTestPointFinished(submitId, submit, submitCase, false);
                 } catch (Exception e) {
@@ -213,7 +218,7 @@ public class JudgeDispatcherServiceImpl implements JudgeDispatcherService {
                 }
             }
             /*程序运行完成*/
-            judgeMessageDispatcherService.submitAllTestPointsFinished(submitId, submit, submitCases, true);
+            judgeMessageDispatcherService.submitAllTestPointsFinished(submitId, submit, true);
         } catch (Exception e) {
             /*系统发生错误*/
             judgeMessageDispatcherService.onSubmitErrorOccurred(submit.getSubmitId(), submit, true);
@@ -230,6 +235,7 @@ public class JudgeDispatcherServiceImpl implements JudgeDispatcherService {
      * @return 包含程序运行结果的Map对象
      */
     private String getRuntimeResult(RunnerResultDTO result, String standardOutputFilePath, String outputFilePath) {
+        //判断是否是运行是否是AC
         if ("AC".equals(result.getResult())) {
             if (comparatorService.isOutputTheSame(standardOutputFilePath, outputFilePath)) {
                 return "AC";

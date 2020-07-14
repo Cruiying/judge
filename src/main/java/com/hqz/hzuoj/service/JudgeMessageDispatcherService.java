@@ -26,10 +26,9 @@ public interface JudgeMessageDispatcherService {
      * 发送编译结果给用户
      * @param submitId
      * @param submit
-     * @param compileResult
      * @param completed
      */
-    void onSubmitCompileFinished(Integer submitId, Submit submit, CompileResultDTO compileResult, boolean completed);
+    void onSubmitCompileFinished(Integer submitId, Submit submit, boolean completed);
 
     /**
      * 测试点运行完成
@@ -44,8 +43,7 @@ public interface JudgeMessageDispatcherService {
      * 所有测试点运行完成
      * @param submitId
      * @param submit
-     * @param submitCases
      * @param completed
      */
-    void submitAllTestPointsFinished(Integer submitId, Submit submit, List<SubmitCase> submitCases, boolean completed);
+    void submitAllTestPointsFinished(Integer submitId, Submit submit, boolean completed);
 }

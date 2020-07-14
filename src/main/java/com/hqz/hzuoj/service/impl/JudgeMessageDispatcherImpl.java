@@ -1,5 +1,6 @@
 package com.hqz.hzuoj.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.hqz.hzuoj.common.constants.RabbitMqConstants;
 import com.hqz.hzuoj.controller.JudgeProducer;
 import com.hqz.hzuoj.entity.DTO.CompileResultDTO;
@@ -10,6 +11,7 @@ import com.hqz.hzuoj.service.*;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,7 +53,7 @@ public class JudgeMessageDispatcherImpl implements JudgeMessageDispatcherService
         submit.setRuntimeTime(0);
         submit.setRuntimeMemory(0);
         submitService.update(submit);
-        sendSubmitMessage(submitId, submit, "System Error", completed);
+        sendSubmitMessage(submitId, submit, null, "System Error", completed);
     }
 
     /**
@@ -61,19 +63,24 @@ public class JudgeMessageDispatcherImpl implements JudgeMessageDispatcherService
      */
     @Override
     public void onSubmitCompile(Integer submitId, Submit submit) {
-
+        submit.setJudgeResultId(judgeResultService.findJudgeResultByJudgeNameAbbr("compile").getJudgeResultId());
+        submit.setScore(0);
+        submitService.update(submit);
+        sendSubmitMessage(submitId, submit, null, "compile running", false);
     }
 
     /**
      * 发送用户编译结果
      * @param submitId
      * @param submit
-     * @param compileResult
      * @param completed
      */
     @Override
-    public void onSubmitCompileFinished(Integer submitId, Submit submit, CompileResultDTO compileResult, boolean completed) {
-
+    public void onSubmitCompileFinished(Integer submitId, Submit submit, boolean completed) {
+        submitService.update(submit);
+        submit.setScore(0);
+        submitService.update(submit);
+        sendSubmitMessage(submitId, submit, null, "compile running final", false);
     }
 
     /**
@@ -85,19 +92,21 @@ public class JudgeMessageDispatcherImpl implements JudgeMessageDispatcherService
      */
     @Override
     public void submitOneTestPointFinished(Integer submitId, Submit submit, SubmitCase submitCase, boolean completed) {
-
+        submitService.update(submit);
+        submitCaseService.insert(submitCase);
+        sendSubmitMessage(submitId, submit, submitCase, "running one case", false);
     }
 
     /**
      * 所有测试点运行完成
      * @param submitId
      * @param submit
-     * @param submitCases
      * @param completed
      */
     @Override
-    public void submitAllTestPointsFinished(Integer submitId, Submit submit, List<SubmitCase> submitCases, boolean completed) {
-
+    public void submitAllTestPointsFinished(Integer submitId, Submit submit, boolean completed) {
+        submitService.update(submit);
+        sendSubmitMessage(submitId, submit, null, "running case final", false);
     }
 
 
@@ -108,13 +117,14 @@ public class JudgeMessageDispatcherImpl implements JudgeMessageDispatcherService
      * @param event
      * @param completed
      */
-    private void sendSubmitMessage(Integer submitId, Submit submit, String event, boolean completed) {
-        Map<String, Object> mapMessage = new HashMap<>();
-        mapMessage.put("event", event);
-        mapMessage.put("completed", completed);
-        mapMessage.put("submit", submit);
-        mapMessage.put("submitId", submitId);
-        judgeProducer.sendSubmitResult(RabbitMqConstants.RECEIVE_JUDGE_RESULT_QUEUE, mapMessage);
+    private void sendSubmitMessage(Integer submitId, Submit submit, SubmitCase submitCase, String event, boolean completed) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("event", event);
+        map.put("completed", completed);
+        map.put("submit", submit);
+        map.put("submitCase", submitCase);
+        map.put("submitId", submitId);
+        judgeProducer.sendSubmitResult(RabbitMqConstants.RECEIVE_JUDGE_RESULT_QUEUE, map);
     }
 
 }
