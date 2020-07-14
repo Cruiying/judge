@@ -88,6 +88,7 @@ public class CompilerServiceImpl implements CompilerService {
         try {
             inputStream = new FileInputStream(compileInfoPath);
             compileInfo = IOUtils.toString(inputStream,"UTF-8");
+            compileInfo = compileInfo.substring(0, 500);
         } catch (Exception ex) {
             ex.printStackTrace();
         } finally {
