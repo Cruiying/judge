@@ -35,7 +35,7 @@ public class JudgeConsumer {
             //手动确认消息已经被消费
             channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
             JSONObject jsonObject = JSONObject.parseObject(new String(message.getBody()));
-            judgeDispatcherService.RunningSubmit(jsonObject.getInteger("submitId"));
+            judgeDispatcherService.runningSubmit(jsonObject.getInteger("submitId"));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -52,7 +52,7 @@ public class JudgeConsumer {
             //手动确认消息已经被消费
             channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
             JSONObject jsonObject = JSONObject.parseObject(new String(message.getBody()));
-            judgeDispatcherService.RunningTest(jsonObject.getInteger("testId"));
+            judgeDispatcherService.runningTest(jsonObject.getInteger("testId"));
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -10,11 +10,11 @@ public interface JudgeDispatcherService {
      * 运行用户提交
      * @param submitId
      */
-    public void RunningSubmit(Integer submitId);
+    public void runningSubmit(Integer submitId);
 
     /**
      * 运行用户自测
      * @param testId
      */
-    public void RunningTest(Integer testId);
+    public void runningTest(Integer testId);
 }

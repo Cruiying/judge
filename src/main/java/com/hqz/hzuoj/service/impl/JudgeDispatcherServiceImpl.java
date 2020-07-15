@@ -14,8 +14,6 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -44,6 +42,9 @@ public class JudgeDispatcherServiceImpl implements JudgeDispatcherService {
     private SubmitService submitService;
 
     @Resource
+    private TestService testService;
+
+    @Resource
     private ProblemService problemService;
 
     @Resource
@@ -68,17 +69,13 @@ public class JudgeDispatcherServiceImpl implements JudgeDispatcherService {
      * @param submitId
      */
     @Override
-    public void RunningSubmit(Integer submitId) {
-        System.err.println("submitId:"+submitId);
+    public void runningSubmit(Integer submitId) {
         Submit submit = submitService.queryById(submitId);
         if (submit == null) {
-            System.err.println("error");
             judgeMessageDispatcherService.onSubmitErrorOccurred(submitId, new Submit(), true);
             return;
         }
-        /**
-         * 创建运行目录和文件
-         */
+        /* 创建运行目录和文件 */
         String randomName = DigestUtils.getRandomString(12, DigestUtils.Mode.ALPHA);
         String baseDirectory = String.format("%s/%s", config.judgeOutputPath, randomName);
         String baseFileName = DigestUtils.getRandomString(12, DigestUtils.Mode.ALPHA);
@@ -97,7 +94,7 @@ public class JudgeDispatcherServiceImpl implements JudgeDispatcherService {
                 return;
             }
             //运行
-            SubmitRun(submit, baseDirectory, baseFileName);
+            submitRun(submit, baseDirectory, baseFileName);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -105,6 +102,7 @@ public class JudgeDispatcherServiceImpl implements JudgeDispatcherService {
             cleanUp(baseDirectory);
         }
     }
+
     /**
      * 完成用户提交评测前的预处理工作.
      * 说明: 随机文件名用于防止应用程序自身递归调用.
@@ -115,6 +113,9 @@ public class JudgeDispatcherServiceImpl implements JudgeDispatcherService {
      */
     private boolean submitPreprocess(Submit submit, String workDirectory, String baseFileName) {
         try {
+            Language language = languageService.queryById(submit.getLanguageId());
+            //创建源代码到本地文件
+            preprocessorService.createRuntimeCode(submit.getCode(), language, workDirectory, baseFileName);
             //获取题目信息
             Problem problem = problemService.queryById(submit.getProblemId());
             //加载题目数据
@@ -123,9 +124,6 @@ public class JudgeDispatcherServiceImpl implements JudgeDispatcherService {
             if ("error".equals(s)) {
                 return false;
             }
-            Language language = languageService.queryById(submit.getLanguageId());
-            //创建源代码到本地文件
-            preprocessorService.createRuntimeCode(submit.getCode(), language, workDirectory, baseFileName);
             return true;
         } catch (Exception ex) {
             log.error("提交预处理错误: {}", ex.getMessage());
@@ -152,6 +150,7 @@ public class JudgeDispatcherServiceImpl implements JudgeDispatcherService {
         //返回编译状态
         return compileResult.getCompileSuccess();
     }
+
     /**
      * 执行用户提交的测评程序.
      *
@@ -159,7 +158,7 @@ public class JudgeDispatcherServiceImpl implements JudgeDispatcherService {
      * @param workDirectory - 编译生成结果的目录以及程序输出的目录
      * @param baseFileName  - 待执行的应用程序文件名(不包含文件后缀)
      */
-    private void SubmitRun(Submit submit, String workDirectory, String baseFileName) throws NotFoundException {
+    private void submitRun(Submit submit, String workDirectory, String baseFileName) throws NotFoundException {
         try {
             Integer submitId = submit.getSubmitId();
             Integer problemId = submit.getProblemId();
@@ -212,21 +211,121 @@ public class JudgeDispatcherServiceImpl implements JudgeDispatcherService {
                     submit.setScore(acceptedTotal * 100 / size);
                     submit.setJudgeResultId(judgeResultId);
                     /*一个测试运行完成*/
-                    judgeMessageDispatcherService.submitOneTestPointFinished(submitId, submit, submitCase, false);
+                    judgeMessageDispatcherService.onSubmitOneTestPointFinished(submitId, submit, submitCase, false);
                 } catch (Exception e) {
                     /*系统发生错误*/
-                    judgeMessageDispatcherService.submitOneTestPointFinished(submitId, submit, submitCase, false);
+                    judgeMessageDispatcherService.onSubmitOneTestPointFinished(submitId, submit, submitCase, false);
                     log.error("一个测试点发生系统错误: {}", e.getMessage());
                 }
             }
             /*程序运行完成*/
-            judgeMessageDispatcherService.submitAllTestPointsFinished(submitId, submit, true);
+            judgeMessageDispatcherService.onSubmitAllTestPointsFinished(submitId, submit, true);
         } catch (Exception e) {
             /*系统发生错误*/
             judgeMessageDispatcherService.onSubmitErrorOccurred(submit.getSubmitId(), submit, true);
             log.error("发生错误: {}", e.getMessage());
         }
     }
+
+    /**
+     * 运行用户自测
+     *
+     * @param testId
+     */
+    @Override
+    public void runningTest(Integer testId) {
+        Test test = testService.findTest(testId);
+        if (test == null) {
+            judgeMessageDispatcherService.onTestErrorOccurred(testId, new Test(), true);
+            return;
+        }
+        /* 创建自测运行目录 **/
+        String randomName = DigestUtils.getRandomString(12, DigestUtils.Mode.ALPHA);
+        String baseDirectory = String.format("%s/%s", config.judgeTestPath, randomName);
+        String baseFileName = DigestUtils.getRandomString(12, DigestUtils.Mode.ALPHA);
+        try {
+            if (!testPreprocess(test, baseDirectory, baseFileName)) {
+                judgeMessageDispatcherService.onTestErrorOccurred(testId, test, true);
+            }
+            if (!testCompile(test, baseDirectory, baseFileName)) {
+                return;
+            }
+            TestRun(test, baseDirectory, baseFileName);
+        } catch (Exception e) {
+            log.error("用户自测发送系统错误: {}", e.getMessage());
+        } finally {
+            cleanUp(baseDirectory);
+        }
+    }
+
+    /**
+     * 预处理用户自测信息
+     *
+     * @param test
+     * @param baseDirectory
+     * @param baseFileName
+     */
+    private boolean testPreprocess(Test test, String baseDirectory, String baseFileName) {
+        try {
+            Language language = languageService.queryById(test.getLanguageId());
+            //创建自测本地代码
+            preprocessorService.createRuntimeCode(test.getCode(), language, baseDirectory, baseFileName);
+            //保存输入输出数据到本地
+            preprocessorService.saveTestData(test);
+            return true;
+        } catch (Exception e) {
+            log.error("自测预处理失败: {}", e.getMessage());
+        }
+        return false;
+    }
+
+    /**
+     * 编译用户自测代码
+     * @param test
+     * @param workDirectory
+     * @param baseFileName
+     * @return
+     */
+    private boolean testCompile(Test test, String workDirectory, String baseFileName) {
+        try {
+            Language language = languageService.queryById(test.getLanguageId());
+            //获取编译结果
+            CompileResultDTO compileResult = compilerService.getCompileResult(language, workDirectory, baseFileName);
+            test.setCompileInfo(compileResult.getCompileInfo());
+            judgeMessageDispatcherService.onTestCompileFinished(test.getTestId(), test, compileResult.getCompileSuccess());
+            return !compileResult.getCompileSuccess();
+        } catch (Exception e) {
+            log.error("自测编译发生系统错误: {}", e.getMessage());
+        }
+        return false;
+    }
+
+    private void TestRun(Test test, String workDirectory, String baseFileName) {
+        Integer testId = test.getTestId();
+        try {
+            Language language = languageService.queryById(test.getLanguageId());
+            String inputFilePath = String.format("%s/%s.in", workDirectory, testId);
+            String stdOutputFilePath = String.format("%s/%s.out", workDirectory, testId);
+            String outputFilePath = String.format("%s/ans_%s.txt", workDirectory, testId);
+            JudgeDataDTO judgeData = new JudgeDataDTO();
+            judgeData.setMemoryLimit(128 * 1024);
+            judgeData.setTimeLimit(1000);
+            judgeData.setOutputPath(outputFilePath);
+            judgeData.setInputPath(inputFilePath);
+            RunnerResultDTO runtimeResult = runnerService.getRuntimeResult(language, workDirectory, baseFileName, judgeData);
+            String runtimeResultAbbr = getRuntimeResult(runtimeResult, stdOutputFilePath, outputFilePath);
+            if ("AC".equals(runtimeResultAbbr)) {
+                test.setScore(100);
+            }
+            test.setJudgeResultId(judgeResultService.findJudgeResultByJudgeNameAbbr(runtimeResultAbbr).getJudgeResultId());
+            judgeMessageDispatcherService.onTestRuntimeFinished(testId, test, true);
+        } catch (Exception e) {
+            log.error("自测运行发送系统错误: {}", e.getMessage());
+            //预处理器发生错误
+            judgeMessageDispatcherService.onTestErrorOccurred(testId, test, true);
+        }
+    }
+
 
     /**
      * 获取程序运行结果(及答案比对结果).
@@ -247,16 +346,6 @@ public class JudgeDispatcherServiceImpl implements JudgeDispatcherService {
         }
         return result.getResult();
     }
-    /**
-     * 运行用户自测
-     *
-     * @param testId
-     */
-    @Override
-    public void RunningTest(Integer testId) {
-
-    }
-
 
     /**
      * 评测完成后, 清理所生成的文件.

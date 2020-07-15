@@ -7,6 +7,7 @@ import com.hqz.hzuoj.entity.DTO.CompileResultDTO;
 import com.hqz.hzuoj.entity.model.JudgeResult;
 import com.hqz.hzuoj.entity.model.Submit;
 import com.hqz.hzuoj.entity.model.SubmitCase;
+import com.hqz.hzuoj.entity.model.Test;
 import com.hqz.hzuoj.service.*;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +28,9 @@ public class JudgeMessageDispatcherImpl implements JudgeMessageDispatcherService
 
     @Resource
     private SubmitService submitService;
+
+    @Resource
+    private TestService testService;
 
     @Resource
     private LanguageService languageService;
@@ -64,7 +68,6 @@ public class JudgeMessageDispatcherImpl implements JudgeMessageDispatcherService
     @Override
     public void onSubmitCompile(Integer submitId, Submit submit) {
         submit.setJudgeResultId(judgeResultService.findJudgeResultByJudgeNameAbbr("compile").getJudgeResultId());
-        submit.setScore(0);
         submitService.update(submit);
         sendSubmitMessage(submitId, submit, null, "compile running", false);
     }
@@ -77,10 +80,13 @@ public class JudgeMessageDispatcherImpl implements JudgeMessageDispatcherService
      */
     @Override
     public void onSubmitCompileFinished(Integer submitId, Submit submit, boolean completed) {
+        if (completed) {
+            submit.setJudgeResultId(judgeResultService.findJudgeResultByJudgeNameAbbr("CE").getJudgeResultId());
+        } else {
+            submit.setJudgeResultId(judgeResultService.findJudgeResultByJudgeNameAbbr("Running").getJudgeResultId());
+        }
         submitService.update(submit);
-        submit.setScore(0);
-        submitService.update(submit);
-        sendSubmitMessage(submitId, submit, null, "compile running final", false);
+        sendSubmitMessage(submitId, submit, null, "compile running final", completed);
     }
 
     /**
@@ -91,7 +97,7 @@ public class JudgeMessageDispatcherImpl implements JudgeMessageDispatcherService
      * @param completed
      */
     @Override
-    public void submitOneTestPointFinished(Integer submitId, Submit submit, SubmitCase submitCase, boolean completed) {
+    public void onSubmitOneTestPointFinished(Integer submitId, Submit submit, SubmitCase submitCase, boolean completed) {
         submitService.update(submit);
         submitCaseService.insert(submitCase);
         sendSubmitMessage(submitId, submit, submitCase, "running one case", false);
@@ -104,9 +110,54 @@ public class JudgeMessageDispatcherImpl implements JudgeMessageDispatcherService
      * @param completed
      */
     @Override
-    public void submitAllTestPointsFinished(Integer submitId, Submit submit, boolean completed) {
+    public void onSubmitAllTestPointsFinished(Integer submitId, Submit submit, boolean completed) {
         submitService.update(submit);
         sendSubmitMessage(submitId, submit, null, "running case final", false);
+    }
+
+    /**
+     * 用户自测发生系统错误
+     * @param testId
+     * @param test
+     * @param completed
+     */
+    @Override
+    public void onTestErrorOccurred(Integer testId, Test test, boolean completed) {
+        test.setScore(0);
+        test.setRuntimeMemory(0);
+        test.setRuntimeTime(0);
+        test.setJudgeResultId(judgeResultService.findJudgeResultByJudgeNameAbbr("SE").getJudgeResultId());
+        testService.update(test);
+        sendTestMessage(testId, test, "System Error", true);
+    }
+
+    /**
+     * 发送用户自测代码编译结束消息
+     * @param testId
+     * @param test
+     * @param completed
+     */
+    @Override
+    public void onTestCompileFinished(Integer testId, Test test, boolean completed) {
+        if (completed) {
+            test.setJudgeResultId(judgeResultService.findJudgeResultByJudgeNameAbbr("CE").getJudgeResultId());
+        } else {
+            test.setJudgeResultId(judgeResultService.findJudgeResultByJudgeNameAbbr("Running").getJudgeResultId());
+        }
+        testService.update(test);
+        sendTestMessage(testId, test, "compile final", completed);
+    }
+
+    /**
+     * 自测运行完成
+     * @param testId
+     * @param test
+     * @param completed
+     */
+    @Override
+    public void onTestRuntimeFinished(Integer testId, Test test, boolean completed) {
+        testService.update(test);
+        sendTestMessage(testId, test, "running final", completed);
     }
 
 
@@ -125,6 +176,22 @@ public class JudgeMessageDispatcherImpl implements JudgeMessageDispatcherService
         map.put("submitCase", submitCase);
         map.put("submitId", submitId);
         judgeProducer.sendSubmitResult(RabbitMqConstants.RECEIVE_JUDGE_RESULT_QUEUE, map);
+    }
+
+    /**
+     * 向测评记录队列发送消息
+     * @param testId
+     * @param test
+     * @param event
+     * @param completed
+     */
+    private void sendTestMessage(Integer testId, Test test, String event, boolean completed) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("event", event);
+        map.put("completed", completed);
+        map.put("test", test);
+        map.put("testId", testId);
+        judgeProducer.sendTestResult(RabbitMqConstants.RECEIVE_JUDGE_TEST_RESULT_QUEUE, map);
     }
 
 }
