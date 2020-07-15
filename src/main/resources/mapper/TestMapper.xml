@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqz.hzuoj.mapper.TestMapper">
+    <resultMap id="testMap" type="com.hqz.hzuoj.entity.model.Test">
+        <result property="testId" column="test_id"/>
+        <result property="code" column="code"/>
+        <result property="output" column="output"/>
+        <result property="input" column="input"/>
+        <result property="runtimeOutput" column="runtime_output"/>
+        <result property="compileInfo" column="compile_info"/>
+        <result property="languageId" column="language_id"/>
+        <result property="judgeResultId" column="judge_resultId"/>
+        <result property="runtimeTime" column="runtime_time"/>
+        <result property="runtimeMemory" column="runtime_memory"/>
+        <result property="timeLimit" column="time_limit"/>
+        <result property="memoryLimit" column="memory_limit"/>
+        <result property="score" column="score"/>
+    </resultMap>
+    <update id="update">
+        update test
+        <set>
+            <if test="code != null">
+                code = #{code},
+            </if>
+            <if test="output != null">
+                `output` = #{output},
+            </if>
+            <if test="input != null">
+                `input` = #{input},
+            </if>
+            <if test="runtimeOutput != null">
+                runtime_output = #{runtimeOutput},
+            </if>
+            <if test="compileInfo != null">
+                compile_info = #{compileInfo},
+            </if>
+            <if test="languageId != null">
+                language_id = #{languageId},
+            </if>
+            <if test="judgeResultId != null">
+                judge_result_id = #{judgeResultId},
+            </if>
+            <if test="runtimeTime != null">
+                runtime_time = #{runtimeTime},
+            </if>
+            <if test="runtimeMemory != null">
+                runtime_memory = #{runtimeMemory},
+            </if>
+            <if test="timeLimit != null">
+                time_limit = #{time_limit},
+            </if>
+            <if test="memoryLimit != null">
+                memory_limit = #{memoryLimit},
+            </if>
+            <if test="score != null">
+                score = #{score},
+            </if>
+        </set>
+        where test_id = #{testId}
+    </update>
+    <select id="findTest" resultType="com.hqz.hzuoj.entity.model.Test">
+        select * from test where test_id = #{testId}
+    </select>
+
+
+</mapper>
