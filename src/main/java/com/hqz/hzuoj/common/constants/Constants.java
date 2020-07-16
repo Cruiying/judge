@@ -166,4 +166,21 @@ public class Constants {
         }
     }
 
+    public static class JudgeResult {
+        /** 测评返回结果类型 */
+        public interface Judge_Result_Abbr {
+            final String AC = "AC";
+            final String SE = "SE";
+            final String CE = "CE";
+            final String WA = "WA";
+            final String PD = "PD";
+            final String TLE = "TLE";
+            final String OLE = "OLE";
+            final String MLE = "MLE";
+            final String RE = "RE";
+            final String QUEUE = "queue";
+            final String RUNNING = "Running";
+            final String COMPILE = "compile";
+        }
+    }
 }
