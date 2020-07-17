@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 /**
  * 编译器
@@ -87,18 +88,12 @@ public class CompilerServiceImpl implements CompilerService {
         String compileInfo = "";
         try {
             inputStream = new FileInputStream(compileInfoPath);
-            compileInfo = IOUtils.toString(inputStream,"UTF-8");
+            compileInfo = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
             compileInfo = compileInfo.substring(0, 500);
         } catch (Exception ex) {
             ex.printStackTrace();
         } finally {
-            if (inputStream != null) {
-                try {
-                    inputStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+            IOUtils.closeQuietly(inputStream);
         }
         return compileInfo;
     }

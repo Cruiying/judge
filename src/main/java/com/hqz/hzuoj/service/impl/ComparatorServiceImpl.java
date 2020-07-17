@@ -1,6 +1,7 @@
 package com.hqz.hzuoj.service.impl;
 
 import com.hqz.hzuoj.service.ComparatorService;
+import org.apache.commons.io.IOUtils;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
@@ -39,34 +40,10 @@ public class ComparatorServiceImpl implements ComparatorService {
             e.printStackTrace();
         } finally {
             /*关闭文件*/
-            if (stdOutput != null) {
-                try {
-                    stdOutput.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (userOutput != null) {
-                try {
-                    userOutput.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (stdFileReader != null) {
-                try {
-                    stdFileReader.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (userFileReader != null) {
-                try {
-                    userFileReader.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+            IOUtils.closeQuietly(stdOutput);
+            IOUtils.closeQuietly(userOutput);
+            IOUtils.closeQuietly(stdFileReader);
+            IOUtils.closeQuietly(userFileReader);
         }
         return false;
     }
