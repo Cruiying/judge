@@ -1,6 +1,7 @@
 package com.hqz.hzuoj.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.hqz.hzuoj.common.constants.Constants;
 import com.hqz.hzuoj.common.constants.RabbitMqConstants;
 import com.hqz.hzuoj.controller.JudgeProducer;
 import com.hqz.hzuoj.entity.DTO.CompileResultDTO;
@@ -51,7 +52,7 @@ public class JudgeMessageDispatcherImpl implements JudgeMessageDispatcherService
      */
     @Override
     public void onSubmitErrorOccurred(Integer submitId, Submit submit, boolean completed) {
-        JudgeResult judgeResult = judgeResultService.findJudgeResultByJudgeNameAbbr("SE");
+        JudgeResult judgeResult = judgeResultService.findJudgeResultByJudgeNameAbbr(Constants.JudgeResult.Judge_Result_Abbr.SE);
         submit.setJudgeResultId(judgeResult.getJudgeResultId());
         submit.setScore(0);
         submit.setRuntimeTime(0);
@@ -81,7 +82,7 @@ public class JudgeMessageDispatcherImpl implements JudgeMessageDispatcherService
     @Override
     public void onSubmitCompileFinished(Integer submitId, Submit submit, boolean completed) {
         if (completed) {
-            submit.setJudgeResultId(judgeResultService.findJudgeResultByJudgeNameAbbr("CE").getJudgeResultId());
+            submit.setJudgeResultId(judgeResultService.findJudgeResultByJudgeNameAbbr(Constants.JudgeResult.Judge_Result_Abbr.CE).getJudgeResultId());
         } else {
             submit.setJudgeResultId(judgeResultService.findJudgeResultByJudgeNameAbbr("Running").getJudgeResultId());
         }
@@ -126,7 +127,7 @@ public class JudgeMessageDispatcherImpl implements JudgeMessageDispatcherService
         test.setScore(0);
         test.setRuntimeMemory(0);
         test.setRuntimeTime(0);
-        test.setJudgeResultId(judgeResultService.findJudgeResultByJudgeNameAbbr("SE").getJudgeResultId());
+        test.setJudgeResultId(judgeResultService.findJudgeResultByJudgeNameAbbr(Constants.JudgeResult.Judge_Result_Abbr.SE).getJudgeResultId());
         testService.update(test);
         sendTestMessage(testId, test, "System Error", true);
     }
@@ -140,9 +141,9 @@ public class JudgeMessageDispatcherImpl implements JudgeMessageDispatcherService
     @Override
     public void onTestCompileFinished(Integer testId, Test test, boolean completed) {
         if (completed) {
-            test.setJudgeResultId(judgeResultService.findJudgeResultByJudgeNameAbbr("CE").getJudgeResultId());
+            test.setJudgeResultId(judgeResultService.findJudgeResultByJudgeNameAbbr(Constants.JudgeResult.Judge_Result_Abbr.CE).getJudgeResultId());
         } else {
-            test.setJudgeResultId(judgeResultService.findJudgeResultByJudgeNameAbbr("Running").getJudgeResultId());
+            test.setJudgeResultId(judgeResultService.findJudgeResultByJudgeNameAbbr(Constants.JudgeResult.Judge_Result_Abbr.RUNNING).getJudgeResultId());
         }
         testService.update(test);
         sendTestMessage(testId, test, "compile final", completed);

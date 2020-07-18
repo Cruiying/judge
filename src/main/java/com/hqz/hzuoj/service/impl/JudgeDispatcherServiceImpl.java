@@ -1,6 +1,7 @@
 package com.hqz.hzuoj.service.impl;
 
 import com.hqz.hzuoj.common.constants.ConfigConstants;
+import com.hqz.hzuoj.common.constants.Constants;
 import com.hqz.hzuoj.common.util.DigestUtils;
 import com.hqz.hzuoj.entity.DTO.CompileResultDTO;
 import com.hqz.hzuoj.entity.DTO.JudgeDataDTO;
@@ -314,7 +315,7 @@ public class JudgeDispatcherServiceImpl implements JudgeDispatcherService {
             judgeData.setInputPath(inputFilePath);
             RunnerResultDTO runtimeResult = runnerService.getRuntimeResult(language, workDirectory, baseFileName, judgeData);
             String runtimeResultAbbr = getRuntimeResult(runtimeResult, stdOutputFilePath, outputFilePath);
-            if ("AC".equals(runtimeResultAbbr)) {
+            if (Constants.JudgeResult.Judge_Result_Abbr.AC.equals(runtimeResultAbbr)) {
                 test.setScore(100);
             }
             test.setJudgeResultId(judgeResultService.findJudgeResultByJudgeNameAbbr(runtimeResultAbbr).getJudgeResultId());
@@ -337,11 +338,11 @@ public class JudgeDispatcherServiceImpl implements JudgeDispatcherService {
      */
     private String getRuntimeResult(RunnerResultDTO result, String standardOutputFilePath, String outputFilePath) {
         //判断是否是运行是否是AC
-        if ("AC".equals(result.getResult())) {
+        if (Constants.JudgeResult.Judge_Result_Abbr.AC.equals(result.getResult())) {
             if (comparatorService.isOutputTheSame(standardOutputFilePath, outputFilePath)) {
-                return "AC";
+                return Constants.JudgeResult.Judge_Result_Abbr.AC;
             } else {
-                return "WA";
+                return Constants.JudgeResult.Judge_Result_Abbr.WA;
             }
         }
         return result.getResult();

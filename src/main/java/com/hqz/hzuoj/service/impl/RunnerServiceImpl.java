@@ -1,5 +1,6 @@
 package com.hqz.hzuoj.service.impl;
 
+import com.hqz.hzuoj.common.constants.Constants;
 import com.hqz.hzuoj.entity.DTO.JudgeDataDTO;
 import com.hqz.hzuoj.entity.DTO.JudgeResultDTO;
 import com.hqz.hzuoj.entity.DTO.RunnerResultDTO;
@@ -52,15 +53,15 @@ public class RunnerServiceImpl implements RunnerService {
      */
     private String getRuntimeResult(JudgeResultDTO resultDTO, JudgeDataDTO judgeDataDTO) {
         if (resultDTO.getUsedTime() >= judgeDataDTO.getTimeLimit()) {
-            return "TLE";
+            return Constants.JudgeResult.Judge_Result_Abbr.TLE;
         }
         if (resultDTO.getUsedMemory() >= judgeDataDTO.getMemoryLimit()) {
-            return "MLE";
+            return Constants.JudgeResult.Judge_Result_Abbr.MLE;
         }
         if (resultDTO.getExitCode() == 0) {
-            return "AC";
+            return Constants.JudgeResult.Judge_Result_Abbr.AC;
         }
-        return "RE";
+        return Constants.JudgeResult.Judge_Result_Abbr.RE;
     }
 
 
