@@ -74,7 +74,7 @@ public class RunnerServiceImpl implements RunnerService {
      * @return 待执行的命令行
      */
     private String getRuntimeCmd(Language language, String workDirectory, String baseFileName) {
-        String filePathWithoutExtension = String.format("%s/%s", new Object[]{workDirectory, baseFileName});
+        String filePathWithoutExtension = String.format("%s/%s", workDirectory, baseFileName);
         StringBuilder cmd = new StringBuilder(language.getRuntimeCmd().replaceAll("\\{filename\\}", filePathWithoutExtension));
         if ("Java".equalsIgnoreCase(language.getName())) {
             int lastIndexOfSpace = cmd.lastIndexOf("/");
