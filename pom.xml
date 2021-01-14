@@ -36,7 +36,7 @@
         <mysql.version>8.0.11</mysql.version>
         <fastjson.version>1.2.67</fastjson.version>
         <mongodb.version>3.11.1</mongodb.version>
-        <poi.version>3.15</poi.version>
+        <poi.version>3.17</poi.version>
         <pagehelp.version>1.2.5</pagehelp.version>
         <tk.mybatis.version>2.1.5</tk.mybatis.version>
         <aspects.version>5.1.9.RELEASE</aspects.version>
